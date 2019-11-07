@@ -1,6 +1,8 @@
 .vs/
 /NGP_Project/Debug
 /NGP_Project/Release
+/Server/Debug
+/Server/Release
 *.exe
 *.ilk
 *.pdb
