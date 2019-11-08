@@ -1,6 +1,7 @@
 #pragma comment(lib, "ws2_32")
 #include <WinSock2.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -36,6 +37,17 @@ int main() {
 	// 윈속 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) return 1;
+
+	// 서버의 IP를 콘솔창에 출력한다.
+	HOSTENT* hostent;
+	char name[20], addr[20];
+	retval = gethostname(name, sizeof(name));
+	if (retval == 0) {
+		hostent = gethostbyname(name);
+		strcpy(addr, inet_ntoa(*(IN_ADDR*)
+			hostent->h_addr_list[0]));
+	}
+	cout << "Server's IP : " << addr << endl;
 
 	// socket 생성
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
