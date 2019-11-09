@@ -1,8 +1,7 @@
-#include <GL/freeglut.h>
 #ifndef __BALL_H__
 #define __BALL_H__
 #pragma comment(lib, "winmm")
-#include <mmsystem.h>
+#include "../globals.h"
 
 class Ball
 {
@@ -37,20 +36,26 @@ private:
 	};
 	ink_ ink[3];
 
+	// 추가 변수
+	int state;
+	int index;
+
 public:
 	Ball();
-	void Draw();
 	bool Collide(int floor, int tile_state);
 	void Update();
 	double Get_y();
 	bool Get_camera();
 	int Get_floor();
 
-	void Draw_ink();
+	// void Draw_ink();
 
 	void Fail();
 	void Victory();
 	void Power_overwhelming();
+
+	// Server's Function
+	Player_Packet MakePacket();
 };
 
 #endif

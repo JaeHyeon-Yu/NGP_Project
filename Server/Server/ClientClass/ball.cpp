@@ -1,8 +1,8 @@
 #include "ball.h"
 #include "tower.h"
 #include <iostream>
-extern int Game_state;
-extern Tower tower;
+int Game_state;
+Tower tower;
 #define GRAVITY 9.8
 
 #define EMPTY_TILE 0
@@ -28,27 +28,6 @@ Ball::Ball()
 	life = true;
 	immotal = false;
 	wire_size = 0.07;
-}
-
-void Ball::Draw()
-{
-	Draw_ink();
-	glPushMatrix();
-	{
-		if (immotal == false)
-		{
-			glColor3f(1, 0.9 - (speed * 2), 0.9 - (speed * 2));
-		}
-		else if (immotal == true)
-		{
-			glColor3f(0.5 - (speed * 2), 0.5 - (speed * 2),1);
-		}
-		glTranslated(x, y, z);
-		glScaled(1, Squeeze_timer, 1);
-		glutSolidSphere(size, 10, 10);
-		glutWireSphere(wire_size, 20, 20);
-	}
-	glPopMatrix();
 }
 
 void Ball::Update()
@@ -111,7 +90,6 @@ bool Ball::Collide(int floor, int tile_state)
 				speed = -0.1;
 				camera_follow = false;
 				Squeeze = 2;
-				PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 			}
 			else if (y < floor + 0.2 && tile_state == ROTATE_TILE)
 			{
@@ -120,7 +98,6 @@ bool Ball::Collide(int floor, int tile_state)
 				camera_follow = false;
 				Squeeze = 2;
 				tower.Rotate_half();
-				PlaySound("Sound/rotate.wav", NULL, SND_ASYNC);
 			}
 
 			else if (y < floor + 0.2 && tile_state == BLIND_TILE)
@@ -128,7 +105,6 @@ bool Ball::Collide(int floor, int tile_state)
 				speed = -0.1;
 				camera_follow = false;
 				Squeeze = 2;
-				PlaySound("Sound/spit.wav", NULL, SND_ASYNC);
 
 				for (int i = 0; i < 3; i++)
 				{
@@ -168,7 +144,6 @@ bool Ball::Collide(int floor, int tile_state)
 				{
 					if (life == true)
 					{
-						PlaySound("Sound/die.wav", NULL, SND_ASYNC);
 					}
 					speed = 0;
 					life = false;
@@ -178,7 +153,6 @@ bool Ball::Collide(int floor, int tile_state)
 					speed = -0.1;
 					camera_follow = false;
 					Squeeze = 2;
-					PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 				}
 			}
 			else if (y < floor + 0.2 && tile_state == BLINK_TILE)
@@ -187,7 +161,6 @@ bool Ball::Collide(int floor, int tile_state)
 				{
 					if (life == true)
 					{
-						PlaySound("Sound/die.wav", NULL, SND_ASYNC);
 					}
 					speed = 0;
 					life = false;
@@ -197,7 +170,6 @@ bool Ball::Collide(int floor, int tile_state)
 					speed = -0.1;
 					camera_follow = false;
 					Squeeze = 2;
-					PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 				}
 			}
 			else if (y < floor + 0.2 && tile_state == END_TILE)
@@ -220,7 +192,6 @@ bool Ball::Collide(int floor, int tile_state)
 			{
 				speed = -0.1;
 				camera_follow = true;
-				PlaySound("Sound/break.wav", NULL, SND_ASYNC);
 				return true;
 			}
 		}
@@ -245,58 +216,13 @@ bool Ball::Get_camera()
 	return camera_follow;
 }
 
-void Ball::Draw_ink()
-{
-	glPushMatrix();
-	{
-		glLoadIdentity();
-		for (int j = 0; j < 3; j++)
-		{
-			if (ink[j].exist == true)
-			{
-				glBegin(GL_POLYGON);
-				for (int i = 0; i < 360; i++)
-				{
-					glColor3f(0, 0, 0);
-					glVertex3f(ink[j].x1 + 0.1*cos(i), ink[j].y1 + 0.1*sin(i), 0);
-				}
-				glEnd();
-				glBegin(GL_POLYGON);
-				for (int i = 0; i < 360; i++)
-				{
-					glColor3f(0, 0, 0);
-					glVertex3f(ink[j].x2 + 0.2*cos(i), ink[j].y2 + 0.2*sin(i), 0);
-				}
-				glEnd();
-				glBegin(GL_POLYGON);
-				for (int i = 0; i < 360; i++)
-				{
-					glColor3f(0, 0, 0);
-					glVertex3f(ink[j].x3 + 0.3*cos(i), ink[j].y3 + 0.3*sin(i), 0);
-				}
-				glEnd();
-				glBegin(GL_POLYGON);
-				for (int i = 0; i < 360; i++)
-				{
-					glColor3f(0, 0, 0);
-					glVertex3f(ink[j].x4 + 0.4*cos(i), ink[j].y4 + 0.4*sin(i), 0);
-				}
-				glEnd();
-			}
-		}
-	}
-	glPopMatrix();
-}
-
 void Ball::Fail()
 {
-	PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
 	Game_state = 4;
 }
 
 void Ball::Victory()
 {
-	PlaySound("Sound/win.wav", NULL, SND_ASYNC);
 	Game_state = 5;
 }
 
@@ -310,4 +236,8 @@ void Ball::Power_overwhelming()
 	{
 		immotal = true;
 	}
+}
+Player_Packet Ball::MakePacket() {
+	Player_Packet pPacket{ y, floor, life, state, index };
+	return pPacket;
 }

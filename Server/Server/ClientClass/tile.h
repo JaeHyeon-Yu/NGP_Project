@@ -1,6 +1,5 @@
 #ifndef __TILE_H__
 #define __TILE_H__
-#include <GL/freeglut.h>
 
 #define EASY_1 1
 #define EASY_2 2
@@ -13,7 +12,6 @@
 class Tile
 {
 private:
-	GLUquadric *up_side, *down_side;	// 윗면과 아랫면을 glu객체로 생성
 	float x, y, z;
 	float half_height;
 	int degree;	// 어디에 그려질지 결정해줌
@@ -29,9 +27,6 @@ private:
 
 public:
 	void Initialize(int degree);
-	void Draw_Tile();
-	void Draw_Side(int degree);
-	void Draw_Surface(double left_degree, double right_degree);
 	int Get_state();
 	double Your_Radian(int degree);
 	void Load_Data(int data);

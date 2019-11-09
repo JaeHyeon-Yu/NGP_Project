@@ -13,10 +13,45 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ClientClass">
+      <UniqueIdentifier>{7b1f7285-60ee-4e7f-bee5-171a1850908b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ClientClass\ball.cpp">
+      <Filter>ClientClass</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientClass\stage.cpp">
+      <Filter>ClientClass</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientClass\tile.cpp">
+      <Filter>ClientClass</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientClass\tower.cpp">
+      <Filter>ClientClass</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientClass\loadmap.cpp">
+      <Filter>ClientClass</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ClientClass\ball.h">
+      <Filter>ClientClass</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientClass\stage.h">
+      <Filter>ClientClass</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientClass\tile.h">
+      <Filter>ClientClass</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientClass\tower.h">
+      <Filter>ClientClass</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

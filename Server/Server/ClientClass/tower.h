@@ -16,7 +16,6 @@ private:
 public:
 	void Load_Map();
 	void Initialize(int state);
-	void Draw_Tower();
 
 	void Update();
 	void Rotate_plus();
@@ -29,5 +28,8 @@ public:
 	double Get_ball_y();
 	int Get_ball_floor();
 	void Power_overwhelming();
+
+	// Server's Function
+	Tower_Packet MakePacket();
 };
 #endif // !__TOWER_H__

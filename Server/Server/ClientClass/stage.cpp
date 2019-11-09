@@ -18,16 +18,6 @@ void Stage::Initialize(int floor)
 	distroyed_stage = false;
 
 }
-void Stage::Draw_Stage()
-{
-	glPushMatrix();
-	glTranslated(0, y, 0);
-	for (int i = 0; i < NUM_OF_TILES; i++)
-	{
-		tile[i].Draw_Tile();
-	}
-	glPopMatrix();
-}
 void Stage::Load_Tile_Data(int data, int n)
 {
 	tile[n].Load_Data(data);

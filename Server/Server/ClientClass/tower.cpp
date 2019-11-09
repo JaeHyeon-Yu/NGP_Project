@@ -21,22 +21,6 @@ void Tower::Initialize(int state)
 
 	Load_Map();	// ¸ÊÆÄÀÏ ·Îµù
 }
-void Tower::Draw_Tower()
-{
-	glPushMatrix();
-	glColor3f(1, 1, 1);
-	glPushMatrix();
-		glRotated(90, 1, 0, 0);
-		glutSolidCylinder(0.3, 2.0 * num_of_stages, 20, 20);
-	glPopMatrix();
-	glRotated(-current_degree - rotate_degree, 0, 1, 0);
-	for (int i = 0; i < num_of_stages; i++)
-		stage[i].Draw_Stage();
-	glPopMatrix();
-	ball->Draw();
-	// ±âµÕ±×¸®±â
-}
-
 
 void Tower::Update()
 {
@@ -104,4 +88,8 @@ void Tower::Rotate_half()
 void Tower::Power_overwhelming()
 {
 	ball->Power_overwhelming();
+}
+Tower_Packet Tower::MakePacket() {
+	Tower_Packet tPacket{ current_degree, rotate_degree, 0, 0, 0,0 };
+	return tPacket;
 }
