@@ -241,3 +241,15 @@ Player_Packet Ball::MakePacket() {
 	Player_Packet pPacket{ y, floor, life, state, index };
 	return pPacket;
 }
+void Ball::Initialize(int idx) {
+	if (idx == 0) {
+		x = player1_x;
+		y = player1_y;
+		z = player1_z;
+	}
+	else if (idx == 1) {
+		x = player2_x;
+		y = player2_y;
+		z = player2_z;
+	}
+}

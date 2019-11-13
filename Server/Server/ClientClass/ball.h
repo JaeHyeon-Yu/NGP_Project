@@ -56,6 +56,7 @@ public:
 
 	// Server's Function
 	Player_Packet MakePacket();
+	void Initialize(int idx);
 };
 
 #endif
