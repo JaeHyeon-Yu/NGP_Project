@@ -6,9 +6,14 @@
 #include "ClientClass/ball.h"
 #include "ClientClass/tower.h"
 using namespace std;
+struct ThreadArg {
+	SOCKET sock;
+	int clientIdx;
+};
 
 DWORD WINAPI ProcessClient(LPVOID arg);
 DWORD WINAPI RecvThread(LPVOID arg);
+DWORD WINAPI SendThread(LPVOID arg);
 
 void Initialize(int idx);
 void err_quit(char* msg) {
@@ -82,6 +87,8 @@ int main() {
 	HANDLE hthread;
 
 	while (true) {
+		if (g_users >= MAX_USERS) Sleep(999);
+
 		// accept()
 		addrlen = sizeof(clientaddr);
 		client_sock = accept(listen_sock, (SOCKADDR*)& clientaddr, &addrlen);
@@ -136,37 +143,85 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
 		}
 		cout << "연결!" << clientIdx << endl;
 	
-		// 2인 접속 후 초기 정보 전송
-		if (g_users >= MAX_USERS) {
-			retval = send(sock, (char*)& g_ballArr, sizeof(g_ballArr), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-			//	break;
-			}
-			retval = send(sock, (char*)& g_ballArr, sizeof(g_ballArr), 0);
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-			//	break;
-			}
-		}
+	//	// 2인 접속 후 초기 정보 전송
+	//	if (g_users >= MAX_USERS) {
+	//		retval = send(sock, (char*)& g_ballArr, sizeof(g_ballArr), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//		//	break;
+	//		}
+	//		retval = send(sock, (char*)& g_ballArr, sizeof(g_ballArr), 0);
+	//		if (retval == SOCKET_ERROR) {
+	//			err_display("send()");
+	//		//	break;
+	//		}
+	//	}
 
 		// 게임 시작하고 RecvThread 연결
 		// create thread
-		hthread = CreateThread(NULL, 0, RecvThread, (LPVOID)sock, 0, NULL);
+		ThreadArg* targ = new ThreadArg;
+		targ->sock = sock;
+		targ->clientIdx = clientIdx;
+		hthread = CreateThread(NULL, 0, RecvThread, (LPVOID*)targ, 0, NULL);
 		if (hthread == NULL) closesocket(sock);
 		else CloseHandle(hthread);
 	//}
 	return 0;
 }
 DWORD WINAPI RecvThread(LPVOID arg) {
-	SOCKET sock = (SOCKET)arg;
+	// SOCKET sock = (SOCKET)arg;
+	ThreadArg *tArg = reinterpret_cast<ThreadArg*>(arg);
+	SOCKET sock = tArg->sock;
+	int clientIdx = tArg->clientIdx;
 	SOCKADDR_IN clientaddr;
 	int addrlen = sizeof(clientaddr);
 	int retval;
+	int recvBytes{};
+	char buf[BUFSIZE];
 
 	getpeername(sock, (SOCKADDR*)& clientaddr, &addrlen);
 
-	cout << "asdfggasd" << endl;
+	while (true) {
+		// Recv & Casting Ball Packet
+		ZeroMemory(buf, BUFSIZE);
+		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		retval = recv(sock, buf, recvBytes, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			break;
+		}
+		buf[recvBytes] = '\0';
+		Ball_Packet* bPacket = (Ball_Packet*)buf;
+
+		// Recv & Casting Tower Packet
+		ZeroMemory(buf, BUFSIZE);
+		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		retval = recv(sock, buf, recvBytes, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			break;
+		}
+		buf[recvBytes] = '\0';
+		Tower_Packet* tPacket = (Tower_Packet*)buf;
+
+		// Recv & Casting Mouse Packet
+		ZeroMemory(buf, BUFSIZE);
+		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		retval = recv(sock, buf, recvBytes, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("recv()");
+			break;
+		}
+		buf[recvBytes] = '\0';
+		Mouse_Packet* mPacket = (Mouse_Packet*)buf;
+
+
+		// Event 활성화
+
+	}
 	return 0;
 }
 void Initialize(int idx) {
