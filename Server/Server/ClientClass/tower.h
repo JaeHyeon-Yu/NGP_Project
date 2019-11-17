@@ -31,5 +31,6 @@ public:
 
 	// Server's Function
 	Tower_Packet MakePacket();
+	void Update(Tower_Packet tPacket);
 };
 #endif // !__TOWER_H__

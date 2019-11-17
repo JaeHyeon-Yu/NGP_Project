@@ -10,7 +10,11 @@ struct ThreadArg {
 	SOCKET sock;
 	int clientIdx;
 };
-
+struct StagingPacket {
+	Ball_Packet bPacket;
+	Tower_Packet tPacket;
+	Mouse_Packet mPacket;
+};
 DWORD WINAPI ProcessClient(LPVOID arg);
 DWORD WINAPI RecvThread(LPVOID arg);
 DWORD WINAPI SendThread(LPVOID arg);
@@ -45,6 +49,7 @@ int g_users{ 0 };
 Ball g_ballArr[2];
 Tower g_towerArr[2];
 SOCKET g_sockets[2]{ NULL, NULL };
+StagingPacket g_sPack[2]{ NULL, NULL };
 //---------------------
 
 int main() {
@@ -218,10 +223,52 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 		buf[recvBytes] = '\0';
 		Mouse_Packet* mPacket = (Mouse_Packet*)buf;
 
+		// SendThread로 넘기기 전 대기 영역에 패킷을 저장해준다. 
+		g_sPack[clientIdx].bPacket = *bPacket;
+		g_sPack[clientIdx].tPacket = *tPacket;
+		g_sPack[clientIdx].mPacket = *mPacket;
 
 		// Event 활성화
 
 	}
+	return 0;
+}
+DWORD WINAPI SendThread(LPVOID arg) {
+	// Event 활성화까지 대기하기
+
+	int retval;
+	int sendLen;
+
+	for (int i = 0; i < MAX_USERS; ++i) {
+		// 패킷을 인자로 넣어서 Update
+		g_ballArr[i].Update(g_sPack[i].bPacket);
+		g_towerArr[i].Update(g_sPack[i].tPacket);
+	}
+	for (int i = 0; i < MAX_USERS; ++i) {
+		Ball_Packet bPacket = g_ballArr[i].MakePacket();
+		Tower_Packet tPacket = g_towerArr[i].MakePacket();
+
+		// send Ball Packet
+		sendLen = sizeof(bPacket);
+		retval = send(g_sockets[i], (char*)& sendLen, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("send()");
+		retval = send(g_sockets[i], (char*)& bPacket, sendLen, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			break;
+		}
+
+		// send Tower Packet
+		sendLen = sizeof(tPacket);
+		retval = send(g_sockets[i], (char*)& sendLen, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("send()");
+		retval = send(g_sockets[i], (char*)& tPacket, sendLen, 0);
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			break;
+		}
+	}
+
 	return 0;
 }
 void Initialize(int idx) {

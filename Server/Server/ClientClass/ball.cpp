@@ -237,8 +237,8 @@ void Ball::Power_overwhelming()
 		immotal = true;
 	}
 }
-Player_Packet Ball::MakePacket() {
-	Player_Packet pPacket{ y, floor, life, state, index };
+Ball_Packet Ball::MakePacket() {
+	Ball_Packet pPacket{ y, floor, life, state, index };
 	return pPacket;
 }
 void Ball::Initialize(int idx) {
@@ -252,4 +252,7 @@ void Ball::Initialize(int idx) {
 		y = player2_y;
 		z = player2_z;
 	}
+}
+void Ball::Update(Ball_Packet bPack) {
+
 }
