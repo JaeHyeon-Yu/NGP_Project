@@ -93,3 +93,6 @@ Tower_Packet Tower::MakePacket() {
 	Tower_Packet tPacket{ current_degree, rotate_degree, 0, 0, 0,0 };
 	return tPacket;
 }
+void Tower::Update(Tower_Packet tPacket) {
+
+}

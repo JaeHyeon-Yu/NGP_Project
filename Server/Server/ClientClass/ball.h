@@ -55,7 +55,9 @@ public:
 	void Power_overwhelming();
 
 	// Server's Function
-	Player_Packet MakePacket();
+	Ball_Packet MakePacket();
+	void Initialize(int idx);
+	void Update(Ball_Packet bPack);
 };
 
 #endif
