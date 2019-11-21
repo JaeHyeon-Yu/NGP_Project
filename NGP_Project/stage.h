@@ -11,7 +11,7 @@ private:
 	float floor_height;
 	int y;
 
-	bool distroyed_stage;
+	bool destroyed_stage;
 public:
 	void Initialize(int floor);
 	void Draw_Stage();
@@ -19,7 +19,7 @@ public:
 	int Get_state_of_tile(int tower_drgree);
 	void Load_Tile_Data(int data, int n);
 
-	void Distroy();
+	void Destroy();
 	void Update();
 };
 

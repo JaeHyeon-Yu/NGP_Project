@@ -23,8 +23,8 @@ private:
 
 	double r, g, b;
 
-	double Distroy_timer;
-	int distroy_degree;
+	double Destroy_timer;
+	int destroy_degree;
 	int rand_degree;
 
 public:
@@ -37,6 +37,6 @@ public:
 	void Load_Data(int data);
 
 	void Update();
-	void Distroy(int i);
+	void Destroy(int i);
 };
 #endif // !__TILE_H__

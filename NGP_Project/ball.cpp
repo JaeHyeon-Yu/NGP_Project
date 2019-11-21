@@ -14,6 +14,10 @@ extern Tower tower;
 #define ROTATE_TILE 6
 #define END_TILE 9
 
+//현재 좌표계는 -1.0부터 1.0사이
+//어디까지 이 좌표계를 이용하는지 찾아봐야 한다.
+//현재 Ball클래스는 전부 이 좌표계를 기준으로 동작한다.
+
 Ball::Ball()
 {
 	x = 0;
@@ -24,7 +28,7 @@ Ball::Ball()
 	speed = 0;
 	Squeeze_timer = 1;
 	Squeeze = 0;
-	camera_follow = false;
+	camera_follow = false; // 어지럼증을 방지하기 위함인듯한 변수, 항상 참으로 놓으면 카메라가 공을 따라 위아래로 계속 움직인다.
 	life = true;
 	immotal = false;
 	wire_size = 0.07;
@@ -229,6 +233,7 @@ bool Ball::Collide(int floor, int tile_state)
 			
 	return false;
 }
+
 
 int Ball::Get_floor()
 {

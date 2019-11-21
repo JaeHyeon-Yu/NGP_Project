@@ -21,7 +21,8 @@ void Tower::Initialize(int state)
 
 	Load_Map();	// 맵파일 로딩
 }
-void Tower::Draw_Tower()
+
+void Tower::Draw_Tower()//여기서 타워와 공을 같이 그린다.
 {
 	glPushMatrix();
 	glColor3f(1, 1, 1);
@@ -52,30 +53,19 @@ void Tower::Update()
 	
 	if (ball->Collide(stage[current_floor].Get_y(), stage[current_floor].Get_state_of_tile(current_degree + rotate_degree)) == true)
 	{
-		stage[current_floor].Distroy();
+		stage[current_floor].Destroy();
 	}
 	
 
 }
 
-void Tower::Rotate_plus()
-{
-	current_degree++;
-
-}
-
-void Tower::Rotate_minus()
-{
-	current_degree--;
-
-}
-
-double Tower::Get_ball_y()
+//이 아래로는 연산 함수, 후에 제거할 예정.
+double Tower::Get_ball_y()//공의 y좌표 찾기
 {
 	return ball->Get_y();
 }
 
-bool Tower::Get_ball_camera_follow()
+bool Tower::Get_ball_camera_follow()//공의 카메라 따라가기
 {
 	return ball->Get_camera();
 }

@@ -19,8 +19,6 @@ public:
 	void Draw_Tower();
 
 	void Update();
-	void Rotate_plus();
-	void Rotate_minus();
 	void Rotate_by_mouse(int degree);
 	void Fix_degree();
 	void Rotate_half();

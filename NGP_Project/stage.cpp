@@ -15,9 +15,10 @@ void Stage::Initialize(int floor)
 		tile[i].Initialize(i*degree);
 
 
-	distroyed_stage = false;
+	destroyed_stage = false;
 
 }
+
 void Stage::Draw_Stage()
 {
 	glPushMatrix();
@@ -28,6 +29,7 @@ void Stage::Draw_Stage()
 	}
 	glPopMatrix();
 }
+
 void Stage::Load_Tile_Data(int data, int n)
 {
 	tile[n].Load_Data(data);
@@ -96,9 +98,9 @@ int Stage::Get_state_of_tile(int tower_degree)
 	return 0;
 }
 
-void Stage::Distroy()
+void Stage::Destroy()
 {
-	distroyed_stage = true;
+	destroyed_stage = true;
 }
 
 void Stage::Update()
@@ -106,9 +108,9 @@ void Stage::Update()
 	for (int i = 0; i < NUM_OF_TILES; i++)
 	{
 		tile[i].Update();
-		if (distroyed_stage == true && tile[i].Get_state() != 0)
+		if (destroyed_stage == true && tile[i].Get_state() != 0)
 		{
-			tile[i].Distroy(i);
+			tile[i].Destroy(i);
 		}
 	}
 }

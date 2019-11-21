@@ -32,9 +32,10 @@ void Tile::Initialize(int degree)
 	up_side = gluNewQuadric();
 	down_side = gluNewQuadric();
 
-	Distroy_timer = 0;
-	distroy_degree = 0;
+	Destroy_timer = 0;
+	destroy_degree = 0;
 }
+
 void Tile::Draw_Tile()
 {
 	if (state == 5)
@@ -90,7 +91,7 @@ void Tile::Draw_Tile()
 	glColor3f(r, g, b);
 		glRotated(degree, 0, 1, 0);	// y축 회전하여 제자리에 꽂는다
 		glTranslated(x, y, z);
-		glRotated(distroy_degree, 1, 0, 0);
+		glRotated(destroy_degree, 1, 0, 0);
 		glRotated(90, 1, 0, 0);
 		glPushMatrix();
 		glTranslated(0, 0, half_height);	// 위쪽 먼저 그리기
@@ -115,6 +116,7 @@ void Tile::Draw_Tile()
 
 	glPopMatrix();
 }
+
 void Tile::Draw_Side(int degree)
 {
 	double radian = Your_Radian(degree);
@@ -129,6 +131,7 @@ void Tile::Draw_Side(int degree)
 		glEnd();
 	glPopMatrix();
 }
+
 void Tile::Draw_Surface(double left_degree, double right_degree)
 {
 	double radian_L{ Your_Radian(left_degree) }, 
@@ -149,6 +152,7 @@ void Tile::Draw_Surface(double left_degree, double right_degree)
 		// 곡면그리기
 	glPopMatrix();
 }
+
 double Tile::Your_Radian(int degree)
 {
 	const double PI = 3.141592;
@@ -177,16 +181,16 @@ void Tile::Update()
 //	x = (1 - t)*p1[0] + t * p2[0]
 //	y = (1 - t)*p1[1] + t * p2[1]
 //	draw_point((x, y))
-void Tile::Distroy(int i)
+void Tile::Destroy(int i)
 {
 	state = 8;
-	distroy_degree += rand_degree;
-	double t = Distroy_timer / 100;
+	destroy_degree += rand_degree;
+	double t = Destroy_timer / 100;
 	std::cout << t << std::endl;
 	z = (2 * t*t - 3 * t + 1) * 0 + (-4 * t*t + 4 * t)*2.7 + (2 * t*t - t) * 4;
 	y = (2 * t*t - 3 * t + 1) * 0 + (-4 * t*t + 4 * t)*-2.2 + (2 * t*t - t)*-4;
-	Distroy_timer += 2;
-	if (Distroy_timer == 100)
+	Destroy_timer += 2;
+	if (Destroy_timer == 100)
 	{
 		state = 0;
 	}

@@ -1,13 +1,15 @@
+#pragma once
 #ifndef __MAIN_H__
 #define __MAIN_H__
 #include <GL/freeglut.h>
 
 #define TITLE_STATE 0
-#define SELECT_STATE 1
-#define ZOOM_IN_STATE 2
-#define MAIN_STATE 3
-#define DEFEAT_STATE 4
-#define WIN_STATE 5 
+#define STANDBY_STATE 1
+#define SELECT_STATE 2
+#define ZOOM_IN_STATE 3
+#define MAIN_STATE 4
+#define DEFEAT_STATE 5
+#define WIN_STATE 6
 
 GLvoid drawScene(GLvoid);
 GLvoid Reshape(int w, int h);
@@ -17,8 +19,8 @@ void Mouse(int button, int state, int x, int y);
 void Motion(int xp, int yp);
 void Control_light();
 
-GLubyte * LoadDIBitmap(const char *file_name, BITMAPINFO **info);
-void Init_Texture(GLubyte *pBytes, BITMAPINFO *info, GLuint *textures);
+GLubyte* LoadDIBitmap(const char* file_name, BITMAPINFO** info);
+void Init_Texture(GLubyte* pBytes, BITMAPINFO* info, GLuint* textures);
 void Draw_Background();
 void Draw_Level();
 void Sound_SetUp();
