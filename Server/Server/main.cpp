@@ -105,11 +105,25 @@ int main() {
 		printf("\n[TCP Server] Client Access : IP:%s,	Port:%d \n",
 			inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
+		// Client index 배정
+		int clientIdx{ -1 };
+		for (int i = 0; i < MAX_USERS; ++i)
+			if (g_sockets[i] == NULL) {
+				clientIdx = i;
+				g_sockets[i] = client_sock;
+				break;
+			}
+
+		// Initialize
+		Initialize(clientIdx);
+
 		// create thread
-		hthread = CreateThread(NULL, 0, ProcessClient, (LPVOID)client_sock, 0, NULL);
+		ThreadArg* targ = new ThreadArg;
+		targ->sock = client_sock;
+		targ->clientIdx = clientIdx;
+		hthread = CreateThread(NULL, 0, RecvThread, (LPVOID)client_sock, 0, NULL);
 		if (hthread == NULL) closesocket(client_sock);
 		else CloseHandle(hthread);
-
 	}
 
 	closesocket(listen_sock);
@@ -174,7 +188,10 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
 	return 0;
 }
 DWORD WINAPI RecvThread(LPVOID arg) {
-	// SOCKET sock = (SOCKET)arg;
+	// 접속한 클라이언트가 2인이 아닐 경우 게임을 시작하지 않는다.
+	if (g_users != 2) Sleep(0);
+
+	// Communication Val
 	ThreadArg *tArg = reinterpret_cast<ThreadArg*>(arg);
 	SOCKET sock = tArg->sock;
 	int clientIdx = tArg->clientIdx;
@@ -185,6 +202,12 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 	char buf[BUFSIZE];
 
 	getpeername(sock, (SOCKADDR*)& clientaddr, &addrlen);
+
+	// 초기 데이터 전송
+	retval = send(sock, (char*)& g_ballArr, sizeof(g_ballArr), 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
+	retval = send(sock, (char*)& g_towerArr, sizeof(g_towerArr), 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
 
 	while (true) {
 		// Recv & Casting Ball Packet
