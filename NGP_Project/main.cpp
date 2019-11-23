@@ -9,6 +9,7 @@
 #include <time.h>
 #include "main.h"
 #include "tower.h"
+#include "globals.h"
 
 //엄 그러니까 지금 openGL좌표계로 그릴 수 밖에 없는 이유는 단위를 따로 정하지 않아서인데,
 //단위를 어떤 것을 써야할지가 문제인데, 이게 좌표계 변환을 안 하다보니 생긴 일 인것 같다.
@@ -19,6 +20,8 @@
 //그 다음에 타워의 크기와 공의 크기를 월드 좌표계 기준으로 정해주고
 //그 다음에 그리는게 문제네 이거참;;
 
+
+// -1~0 1P, 0~1 2
 #define DISTANCE_OF_FLOOR 2
 
 int level = 1;
@@ -41,6 +44,11 @@ GLuint textures[2];
 bool bmp_load = false;
 
 void InitConnect(WSADATA wsa, SOCKET sock, int GameState);
+
+// For Network
+Tower g_towers[MAX_USERS];
+int g_myIdx = NULL;
+// Ball g_balls[MAX_USERS]
 
 //소켓 함수 오류 출력 후 종료
 void err_quit(const char* msg)
@@ -65,22 +73,26 @@ void err_display(const char* msg)
 		NULL, WSAGetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)&lpMsgBuf, 0, NULL);
-	std::cout << "[" << msg << "] " << lpMsgBuf << std::endl;
+	std::cout << "[" << msg << "] " << (char*)lpMsgBuf << std::endl;
 	LocalFree(lpMsgBuf);
 }
 
 
 void main(int argc, char *argv[])
 {
+	//InitConnect(wsa, sock, Game_state);
 	//초기화 함수들
-	tower.Initialize(EASY_1);
+	// tower.Initialize(EASY_1);
+	// Test Code
+	for (int i = 0; i < MAX_USERS; ++i)
+		g_towers[i].Initialize(HARD_2);
 	Sound_SetUp();
 	Play_Sound();
 	srand(time(NULL));
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정	// 더블버퍼링 && 3차원으로 그린다.
 	glutInitWindowPosition(100, 100); // 윈도우의 위치지정
-	glutInitWindowSize(800, 800); // 윈도우의 크기 지정
+	glutInitWindowSize(1600, 800); // 윈도우의 크기 지정
 	glutCreateWindow("Spyral Helix"); // 윈도우 생성 (윈도우 이름)
 	glutDisplayFunc(drawScene); // 출력 함수의 지정
 	glutReshapeFunc(Reshape); // 다시 그리기 함수의 지정
@@ -117,8 +129,8 @@ GLvoid drawScene(GLvoid)
 
 	if (Game_state == TITLE_STATE)
 		Draw_Title();
-	else if (Game_state == STANDBY_STATE)
-		InitConnect(wsa, sock, Game_state);
+	// else if (Game_state == STANDBY_STATE)
+	// 	InitConnect(wsa, sock, Game_state);
 	else
 	{
 		//여기도 -1.0과 1.0사이의 좌표계를 이용한다.
@@ -127,16 +139,19 @@ GLvoid drawScene(GLvoid)
 		{
 			glTranslated(0, 0.5, -1);
 			glRotated(30, 1, 0, 0);
-		
-			if (tower.Get_ball_camera_follow() == true)
+			// 1인용일때는 상관이 없는데 2인용으로 양쪽에 그려지게끔 하니까 좀 이상하게 그려진다.
+			// 일단 주석처리하고 나중에 생각해야지
+
+			
+			if (g_towers[g_myIdx].Get_ball_camera_follow() == true)
 			{
-				glTranslated(0, -tower.Get_ball_y(), 0);
+				glTranslated(0, -g_towers[g_myIdx].Get_ball_y(), 0);
 			}
 			else
 			{
 				//????? 이거 뭐야
 				//카메라 따라가는 거다.
-				glTranslated(0, -tower.Get_ball_floor()*-DISTANCE_OF_FLOOR, 0);
+				glTranslated(0, -g_towers[g_myIdx].Get_ball_floor()*-DISTANCE_OF_FLOOR, 0);
 			}
 			if (Game_state == SELECT_STATE || Game_state == ZOOM_IN_STATE)
 			{
@@ -146,8 +161,14 @@ GLvoid drawScene(GLvoid)
 				glTranslated(0, 1.5 - zoom * 0.075, 0);
 				glScaled(0.2 + zoom * 0.04, 0.05 + zoom * 0.0475, 0.2 + zoom * 0.04);
 			}
-			Control_light();
-			tower.Draw_Tower();
+			
+			g_towers[0].SetXpos(-2.f);
+			g_towers[1].SetXpos(2.f);
+
+			for (int i = 0; i < MAX_USERS; ++i) {
+				Control_light();
+				g_towers[i].Draw_Tower();
+			}
 		}
 		glPopMatrix();
 
@@ -317,7 +338,7 @@ void Motion(int xp, int yp)
 	if (drag == true)
 	{
 		int moving = moved_mouse.x - first_click.x;
-		tower.Rotate_by_mouse(-moving);
+		g_towers[g_myIdx].Rotate_by_mouse(-moving);
 	}
 
 }
@@ -544,11 +565,17 @@ void InitConnect(WSADATA wsa, SOCKET sock, int GameState)
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = inet_addr(serverip.c_str());
-	serveraddr.sin_port = htons(9000);
+	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR)err_quit("connect()");
 
-	retval = recv(sock, (char*)&GameState, sizeof(int), 0);
+	// 초기 데이터를 클래스 단위로 받아온다.
+	retval = recv(sock, (char*)& g_towers, sizeof(g_towers), 0);
+	if (retval == SOCKET_ERROR) err_display("recv()");
+	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
+	if (retval == SOCKET_ERROR) err_display("recv()");
+
+	Game_state = EASY_1;
 }
 
 //template<class T>

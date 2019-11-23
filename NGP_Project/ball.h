@@ -37,6 +37,9 @@ private:
 	};
 	ink_ ink[3];
 
+	// 
+	int state;
+
 public:
 	Ball();
 	void Draw();

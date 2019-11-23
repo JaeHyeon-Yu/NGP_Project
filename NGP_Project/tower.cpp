@@ -25,6 +25,9 @@ void Tower::Initialize(int state)
 void Tower::Draw_Tower()//여기서 타워와 공을 같이 그린다.
 {
 	glPushMatrix();
+	glTranslated(xpos, 0, 0);
+
+	glPushMatrix();
 	glColor3f(1, 1, 1);
 	glPushMatrix();
 		glRotated(90, 1, 0, 0);
@@ -36,6 +39,8 @@ void Tower::Draw_Tower()//여기서 타워와 공을 같이 그린다.
 	glPopMatrix();
 	ball->Draw();
 	// 기둥그리기
+
+	glPopMatrix();
 }
 
 

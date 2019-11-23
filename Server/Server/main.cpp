@@ -46,6 +46,7 @@ void err_display(char* msg) {
 
 // global val--------
 int g_users{ 0 };
+int g_gameState{ 0 };
 Ball g_ballArr[2];
 Tower g_towerArr[2];
 SOCKET g_sockets[2]{ NULL, NULL };
@@ -113,6 +114,7 @@ int main() {
 				g_sockets[i] = client_sock;
 				break;
 			}
+		g_users++;
 
 		// Initialize
 		Initialize(clientIdx);
@@ -121,7 +123,7 @@ int main() {
 		ThreadArg* targ = new ThreadArg;
 		targ->sock = client_sock;
 		targ->clientIdx = clientIdx;
-		hthread = CreateThread(NULL, 0, RecvThread, (LPVOID)client_sock, 0, NULL);
+		hthread = CreateThread(NULL, 0, RecvThread, (LPVOID)targ, 0, NULL);
 		if (hthread == NULL) closesocket(client_sock);
 		else CloseHandle(hthread);
 	}
@@ -188,9 +190,6 @@ DWORD WINAPI ProcessClient(LPVOID arg) {
 	return 0;
 }
 DWORD WINAPI RecvThread(LPVOID arg) {
-	// 접속한 클라이언트가 2인이 아닐 경우 게임을 시작하지 않는다.
-	if (g_users != 2) Sleep(0);
-
 	// Communication Val
 	ThreadArg *tArg = reinterpret_cast<ThreadArg*>(arg);
 	SOCKET sock = tArg->sock;
@@ -203,10 +202,14 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 
 	getpeername(sock, (SOCKADDR*)& clientaddr, &addrlen);
 
+	while (g_users < 2) {
+		cout << "f" << endl;
+	}
+
 	// 초기 데이터 전송
-	retval = send(sock, (char*)& g_ballArr, sizeof(g_ballArr), 0);
-	if (retval == SOCKET_ERROR) err_display("send()");
 	retval = send(sock, (char*)& g_towerArr, sizeof(g_towerArr), 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
+	retval = send(sock, (char*)& clientIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("send()");
 
 	while (true) {

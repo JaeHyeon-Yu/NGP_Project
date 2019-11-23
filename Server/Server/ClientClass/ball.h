@@ -38,7 +38,6 @@ private:
 
 	// 추가 변수
 	int state;
-	int index;
 
 public:
 	Ball();

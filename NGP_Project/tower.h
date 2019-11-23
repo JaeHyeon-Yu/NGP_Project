@@ -13,6 +13,9 @@ private:
 	int state;
 
 	int num_of_stages;
+
+	// Test
+	float xpos;
 public:
 	void Load_Map();
 	void Initialize(int state);
@@ -27,5 +30,7 @@ public:
 	double Get_ball_y();
 	int Get_ball_floor();
 	void Power_overwhelming();
+
+	void SetXpos(float x) { xpos = x; }
 };
 #endif // !__TOWER_H__
