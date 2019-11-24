@@ -34,6 +34,6 @@ public:
 	void SetXpos(float x) { xpos = x; }
 	
 	Tower_Packet MakePacket();
-	void Update(Tower_Packet tPacket);
+	void Update(Tower_Packet tPacket, int idx);
 };
 #endif // !__TOWER_H__

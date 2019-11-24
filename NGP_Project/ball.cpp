@@ -3,6 +3,7 @@
 #include <iostream>
 extern int Game_state;
 extern Tower tower;
+extern int g_myIdx;
 #define GRAVITY 9.8
 
 #define EMPTY_TILE 0
@@ -318,14 +319,30 @@ void Ball::Power_overwhelming()
 }
 
 Ball_Packet Ball::MakePacket() {
-	Ball_Packet bPacket{ y, floor, life, state, speed, camera_follow };
+	Ball_Packet bPacket{ y, floor, state, speed, camera_follow };
+	bPacket.state = state;
 	return bPacket;
 }
-void Ball::Update(Ball_Packet bPack) {
+void Ball::Update(Ball_Packet bPack, int idx) {
 	y = bPack.y;
 	floor = bPack.floor;
 	state = bPack.state;
-	life = bPack.life;
 	speed = bPack.speed;
 	camera_follow = bPack.camera;
+
+	if (idx == g_myIdx) PlaySoundEffect();
+}
+void Ball::PlaySoundEffect() {
+
+	if (state == Collide_NORMAL) 
+		PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
+	if (state == Collide_ROTATE)
+		PlaySound("Sound/rotate.wav", NULL, SND_ASYNC);
+	if (state == Collide_BLIND)
+		PlaySound("Sound/spit.wav", NULL, SND_ASYNC);
+	if (state == Collide_KILL)
+		PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
+	
+	std::cout << state << std::endl;
+	state = 0;
 }

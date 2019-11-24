@@ -90,6 +90,7 @@ bool Ball::Collide(int floor, int tile_state)
 				speed = -0.1;
 				camera_follow = false;
 				Squeeze = 2;
+				state = Collide_NORMAL;
 			}
 			else if (y < floor + 0.2 && tile_state == ROTATE_TILE)
 			{
@@ -98,6 +99,7 @@ bool Ball::Collide(int floor, int tile_state)
 				camera_follow = false;
 				Squeeze = 2;
 				tower.Rotate_half();
+				state = Collide_ROTATE;
 			}
 
 			else if (y < floor + 0.2 && tile_state == BLIND_TILE)
@@ -122,11 +124,12 @@ bool Ball::Collide(int floor, int tile_state)
 						break;
 					}
 				}
+				state = Collide_BLIND;
 			}
 			else if (y < floor + 0.4 && tile_state == GRAVITY_FREE_TILE)
 			{
 				speed = -0.0007*GRAVITY;
-
+				state = Collide_GRAVITY;
 			}
 			else if (y < floor + 0.1 && tile_state == EMPTY_TILE)
 			{
@@ -145,6 +148,7 @@ bool Ball::Collide(int floor, int tile_state)
 					if (life == true)
 					{
 					}
+					state = Collide_KILL;
 					speed = 0;
 					life = false;
 				}
@@ -175,6 +179,7 @@ bool Ball::Collide(int floor, int tile_state)
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
 				Victory();
+				state = WIN;
 			}
 		}
 		if (speed >= 0.25)
@@ -187,6 +192,7 @@ bool Ball::Collide(int floor, int tile_state)
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
 				Victory();
+				state = WIN;
 			}
 			else if (y < floor + 0.2&&tile_state != EMPTY_TILE)
 			{
@@ -238,7 +244,7 @@ void Ball::Power_overwhelming()
 	}
 }
 Ball_Packet Ball::MakePacket() {
-	Ball_Packet pPacket{ y, floor, life, state, speed, camera_follow };
+	Ball_Packet pPacket{ y, floor, state, speed, camera_follow };
 	return pPacket;
 }
 void Ball::Initialize(int idx) {
@@ -254,5 +260,5 @@ void Ball::Initialize(int idx) {
 	}
 }
 void Ball::Update(Ball_Packet bPack) {
-
+	state = bPack.state;
 }

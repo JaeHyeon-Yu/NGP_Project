@@ -89,7 +89,7 @@ void main(int argc, char *argv[])
 	//for (int i = 0; i < MAX_USERS; ++i)
 	//	g_towers[i].Initialize(HARD_2);
 	Sound_SetUp();
-	Play_Sound();
+	// Play_Sound();
 	srand(time(NULL));
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정	// 더블버퍼링 && 3차원으로 그린다.
@@ -334,7 +334,7 @@ void Mouse(int button, int state, int x, int y)
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
 		drag = false;
-		tower.Fix_degree();
+		g_towers[g_myIdx].Fix_degree();
 	}
 }
 
@@ -581,7 +581,7 @@ void InitConnect(WSADATA wsa)
 	// if (retval == SOCKET_ERROR) err_display("recv()");
 	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
-	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(HARD_1);
+	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(EASY_1);
 	// Game_state = EASY_1;
 	Game_state = MAIN_STATE;
 }
@@ -603,9 +603,9 @@ void NetworkTimer(int value) {
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	buf[recvBytes] = '\0';
 	Tower_Packet* tPacket = (Tower_Packet*)buf;
-
+	cout << recvBytes << endl;
 	for (int i = 0; i < MAX_USERS; ++i)
-		g_towers[i].Update(tPacket[i]);
+		g_towers[i].Update(tPacket[i], i);
 		
 	glutTimerFunc(100 / 3, NetworkTimer, 2);
 }

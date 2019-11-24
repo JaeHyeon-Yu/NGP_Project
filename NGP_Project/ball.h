@@ -57,7 +57,8 @@ public:
 	void Power_overwhelming();
 
 	Ball_Packet MakePacket();
-	void Update(Ball_Packet bPack);
+	void Update(Ball_Packet bPack, int idx);
+	void PlaySoundEffect();
 };
 
 #endif

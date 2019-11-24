@@ -108,11 +108,11 @@ Tower_Packet Tower::MakePacket() {
 	tPacket.bPack = ball->MakePacket();
 	return tPacket;
 }
-void Tower::Update(Tower_Packet tPacket) {
+void Tower::Update(Tower_Packet tPacket, int idx) {
 	int current_floor = ball->Get_floor();
-	Rotate_by_mouse(tPacket.rotate_degree);
 	current_degree = tPacket.current_degree;
-	ball->Update(tPacket.bPack);
+	Rotate_by_mouse(tPacket.rotate_degree);
+	ball->Update(tPacket.bPack, idx);
 
 	// for (int i = 0; i < num_of_stages; i++)
 	// {

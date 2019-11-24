@@ -7,12 +7,15 @@ enum POS_INFO {
 	player1_x, player1_y, player1_z,
 	player2_x, player2_y, player2_z
 };
-
+enum Ball_State {
+	EMPTY, Collide_BLINK, Collide_KILL,
+	Collide_NORMAL, Collide_ROTATE, Collide_BLIND,
+	Collide_GRAVITY, WIN, LOOSE
+};
 struct Ball_Packet {
 	// Ball Class
 	double y;
 	int floor;
-	int life;
 	int state;
 	double speed;
 	bool camera;
@@ -22,8 +25,6 @@ struct Tower_Packet {
 	// Tower Class
 	int current_degree;
 	int rotate_degree;
-	int tile_index;
-	int tower_index;
 	// int distroy_timer[12];
 	// int distroy_dgree[12];
 	Ball_Packet ball;
