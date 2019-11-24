@@ -13,6 +13,8 @@ private:
 	int state;
 
 	int num_of_stages;
+
+	int xpos;
 public:
 	void Load_Map();
 	void Initialize(int state);

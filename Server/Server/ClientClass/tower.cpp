@@ -83,6 +83,7 @@ void Tower::Fix_degree()
 void Tower::Rotate_half()
 {
 	current_degree += 180;
+	//rotate_degree += 180;
 }
 
 void Tower::Power_overwhelming()
@@ -90,9 +91,13 @@ void Tower::Power_overwhelming()
 	ball->Power_overwhelming();
 }
 Tower_Packet Tower::MakePacket() {
-	Tower_Packet tPacket{ current_degree, rotate_degree, 0, 0, 0,0 };
+	Tower_Packet tPacket;
+	tPacket.current_degree = current_degree;
+	tPacket.rotate_degree = rotate_degree;
+	tPacket.ball = ball->MakePacket();
 	return tPacket;
 }
 void Tower::Update(Tower_Packet tPacket) {
-
+	rotate_degree = tPacket.rotate_degree;
+	Update();
 }

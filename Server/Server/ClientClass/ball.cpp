@@ -238,7 +238,7 @@ void Ball::Power_overwhelming()
 	}
 }
 Ball_Packet Ball::MakePacket() {
-	Ball_Packet pPacket{ y, floor, life, state };
+	Ball_Packet pPacket{ y, floor, life, state, speed, camera_follow };
 	return pPacket;
 }
 void Ball::Initialize(int idx) {

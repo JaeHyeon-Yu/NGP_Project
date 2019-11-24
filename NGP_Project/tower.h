@@ -32,5 +32,8 @@ public:
 	void Power_overwhelming();
 
 	void SetXpos(float x) { xpos = x; }
+	
+	Tower_Packet MakePacket();
+	void Update(Tower_Packet tPacket);
 };
 #endif // !__TOWER_H__

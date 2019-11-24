@@ -51,6 +51,7 @@ Ball g_ballArr[2];
 Tower g_towerArr[2];
 SOCKET g_sockets[2]{ NULL, NULL };
 StagingPacket g_sPack[2]{ NULL, NULL };
+HANDLE g_threadHandle[MAX_USERS];
 //---------------------
 
 int main() {
@@ -90,8 +91,12 @@ int main() {
 	SOCKET client_sock;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
-	HANDLE hthread;
+	HANDLE hthread[MAX_USERS];
+	HANDLE sendThread;
+	g_threadHandle[0] = CreateEvent(NULL, TRUE, FALSE, NULL);
+	g_threadHandle[1] = CreateEvent(NULL, TRUE, FALSE, NULL);
 
+	sendThread = CreateThread(NULL, 0, SendThread, NULL, 0, NULL);
 	while (true) {
 		if (g_users >= MAX_USERS) Sleep(999);
 
@@ -123,7 +128,7 @@ int main() {
 		ThreadArg* targ = new ThreadArg;
 		targ->sock = client_sock;
 		targ->clientIdx = clientIdx;
-		hthread = CreateThread(NULL, 0, RecvThread, (LPVOID)targ, 0, NULL);
+		hthread[clientIdx] = CreateThread(NULL, 0, RecvThread, (LPVOID)targ, 0, NULL);
 		if (hthread == NULL) closesocket(client_sock);
 		else CloseHandle(hthread);
 	}
@@ -207,23 +212,23 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 	}
 
 	// 초기 데이터 전송
-	retval = send(sock, (char*)& g_towerArr, sizeof(g_towerArr), 0);
-	if (retval == SOCKET_ERROR) err_display("send()");
+	//retval = send(sock, (char*)& g_towerArr, sizeof(g_towerArr), 0);
+	//if (retval == SOCKET_ERROR) err_display("send()");
 	retval = send(sock, (char*)& clientIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("send()");
 
 	while (true) {
-		// Recv & Casting Ball Packet
-		ZeroMemory(buf, BUFSIZE);
-		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
-		if (retval == SOCKET_ERROR) err_display("recv()");
-		retval = recv(sock, buf, recvBytes, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
-			break;
-		}
-		buf[recvBytes] = '\0';
-		Ball_Packet* bPacket = (Ball_Packet*)buf;
+		// // Recv & Casting Ball Packet
+		// ZeroMemory(buf, BUFSIZE);
+		// retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		// if (retval == SOCKET_ERROR) err_display("recv()");
+		// retval = recv(sock, buf, recvBytes, 0);
+		// if (retval == SOCKET_ERROR) {
+		// 	err_display("recv()");
+		// 	break;
+		// }
+		// buf[recvBytes] = '\0';
+		// Ball_Packet* bPacket = (Ball_Packet*)buf;
 
 		// Recv & Casting Tower Packet
 		ZeroMemory(buf, BUFSIZE);
@@ -237,69 +242,77 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 		buf[recvBytes] = '\0';
 		Tower_Packet* tPacket = (Tower_Packet*)buf;
 
-		// Recv & Casting Mouse Packet
-		ZeroMemory(buf, BUFSIZE);
-		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
-		if (retval == SOCKET_ERROR) err_display("recv()");
-		retval = recv(sock, buf, recvBytes, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()");
-			break;
-		}
-		buf[recvBytes] = '\0';
-		Mouse_Packet* mPacket = (Mouse_Packet*)buf;
+		// // Recv & Casting Mouse Packet
+		// ZeroMemory(buf, BUFSIZE);
+		// retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		// if (retval == SOCKET_ERROR) err_display("recv()");
+		// retval = recv(sock, buf, recvBytes, 0);
+		// if (retval == SOCKET_ERROR) {
+		// 	err_display("recv()");
+		// 	break;
+		// }
+		// buf[recvBytes] = '\0';
+		// Mouse_Packet* mPacket = (Mouse_Packet*)buf;
 
 		// SendThread로 넘기기 전 대기 영역에 패킷을 저장해준다. 
-		g_sPack[clientIdx].bPacket = *bPacket;
+	// 	g_sPack[clientIdx].bPacket = *bPacket;
 		g_sPack[clientIdx].tPacket = *tPacket;
-		g_sPack[clientIdx].mPacket = *mPacket;
-
+	//	g_sPack[clientIdx].mPacket = *mPacket;
+		cout << clientIdx << " : " << tPacket->rotate_degree << endl;
 		// Event 활성화
-
+		SetEvent(g_threadHandle[clientIdx]);
 	}
 	return 0;
 }
 DWORD WINAPI SendThread(LPVOID arg) {
-	// Event 활성화까지 대기하기
 
 	int retval;
 	int sendLen;
+	while (true) {
+		// Event 활성화까지 대기하기
+		WaitForMultipleObjects(2, g_threadHandle, TRUE, INFINITE);
+		cout << "send!!!";
 
-	for (int i = 0; i < MAX_USERS; ++i) {
-		// 패킷을 인자로 넣어서 Update
-		g_ballArr[i].Update(g_sPack[i].bPacket);
-		g_towerArr[i].Update(g_sPack[i].tPacket);
-	}
-	for (int i = 0; i < MAX_USERS; ++i) {
-		Ball_Packet bPacket = g_ballArr[i].MakePacket();
-		Tower_Packet tPacket = g_towerArr[i].MakePacket();
+		for (int i = 0; i < MAX_USERS; ++i)
+			// 패킷을 인자로 넣어서 Update
+			g_towerArr[i].Update(g_sPack[i].tPacket);
 
-		// send Ball Packet
-		sendLen = sizeof(bPacket);
-		retval = send(g_sockets[i], (char*)& sendLen, sizeof(int), 0);
-		if (retval == SOCKET_ERROR) err_display("send()");
-		retval = send(g_sockets[i], (char*)& bPacket, sendLen, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			break;
+		Tower_Packet tPacket[MAX_USERS];
+		tPacket[0] = g_towerArr[0].MakePacket();
+		tPacket[1] = g_towerArr[1].MakePacket();
+		cout << tPacket[0].rotate_degree << " " << tPacket[1].rotate_degree << endl;
+		for (int i = 0; i < MAX_USERS; ++i) {
+
+			// // send Ball Packet
+			// sendLen = sizeof(bPacket);
+			// retval = send(g_sockets[i], (char*)& sendLen, sizeof(int), 0);
+			// if (retval == SOCKET_ERROR) err_display("send()");
+			// retval = send(g_sockets[i], (char*)& bPacket, sendLen, 0);
+			// if (retval == SOCKET_ERROR) {
+			// 	err_display("send()");
+			// 	break;
+			// }
+
+			// send Tower Packet
+			sendLen = sizeof(tPacket);
+			retval = send(g_sockets[i], (char*)& sendLen, sizeof(int), 0);
+			if (retval == SOCKET_ERROR) err_display("send()");
+			retval = send(g_sockets[i], (char*)& tPacket, sendLen, 0);
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
 		}
 
-		// send Tower Packet
-		sendLen = sizeof(tPacket);
-		retval = send(g_sockets[i], (char*)& sendLen, sizeof(int), 0);
-		if (retval == SOCKET_ERROR) err_display("send()");
-		retval = send(g_sockets[i], (char*)& tPacket, sendLen, 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			break;
-		}
+		// Event 비활성화
+		ResetEvent(g_threadHandle[0]);
+		ResetEvent(g_threadHandle[1]);
 	}
-
 	return 0;
 }
 void Initialize(int idx) {
 	if (idx < 0 || idx >= MAX_USERS) return; 
-	int tower_level = 1;
+	int tower_level = HARD_1;
 
 	g_ballArr[idx].Initialize(idx);
 	g_towerArr[idx].Initialize(tower_level);

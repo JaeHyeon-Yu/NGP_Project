@@ -11,6 +11,8 @@
 #include "tower.h"
 #include "globals.h"
 
+using namespace std;
+
 //엄 그러니까 지금 openGL좌표계로 그릴 수 밖에 없는 이유는 단위를 따로 정하지 않아서인데,
 //단위를 어떤 것을 써야할지가 문제인데, 이게 좌표계 변환을 안 하다보니 생긴 일 인것 같다.
 //그러나 역시 골때리게도 그리기 위해선 -1.0에서 1.0사이의 값을 제시하게 된다.
@@ -43,7 +45,7 @@ GLuint textures[2];
 
 bool bmp_load = false;
 
-void InitConnect(WSADATA wsa, SOCKET sock, int GameState);
+void InitConnect(WSADATA wsa);
 
 // For Network
 Tower g_towers[MAX_USERS];
@@ -80,12 +82,12 @@ void err_display(const char* msg)
 
 void main(int argc, char *argv[])
 {
-	//InitConnect(wsa, sock, Game_state);
+	InitConnect(wsa);
 	//초기화 함수들
 	// tower.Initialize(EASY_1);
 	// Test Code
-	for (int i = 0; i < MAX_USERS; ++i)
-		g_towers[i].Initialize(HARD_2);
+	//for (int i = 0; i < MAX_USERS; ++i)
+	//	g_towers[i].Initialize(HARD_2);
 	Sound_SetUp();
 	Play_Sound();
 	srand(time(NULL));
@@ -100,6 +102,7 @@ void main(int argc, char *argv[])
 	glutMotionFunc(Motion);
 	glutKeyboardFunc(Keyboard);		// 키보드 입력
 	glutTimerFunc(100/3, Timerfunction, 1);
+	glutTimerFunc(100 / 3, NetworkTimer, 2);
 	glutMainLoop();
 }
 // 윈도우 출력 함수
@@ -162,6 +165,7 @@ GLvoid drawScene(GLvoid)
 				glScaled(0.2 + zoom * 0.04, 0.05 + zoom * 0.0475, 0.2 + zoom * 0.04);
 			}
 			
+			// Test Code
 			g_towers[0].SetXpos(-2.f);
 			g_towers[1].SetXpos(2.f);
 
@@ -234,7 +238,10 @@ void Timerfunction(int value)
 
 	if (Game_state == MAIN_STATE) //메인 상태에선 타워의 각도를 갱신해준다.
 	{
-		tower.Update();
+		// tower.Update();
+		// g_towers[0].Update();
+		// g_towers[1].Update();
+
 	}
 
 	glutPostRedisplay();	// 화면 재출력
@@ -545,7 +552,7 @@ void Draw_select_state()
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str2[i]);
 }
 
-void InitConnect(WSADATA wsa, SOCKET sock, int GameState)
+void InitConnect(WSADATA wsa)
 {
 	int retval;
 	std::string serverip;
@@ -570,12 +577,37 @@ void InitConnect(WSADATA wsa, SOCKET sock, int GameState)
 	if (retval == SOCKET_ERROR)err_quit("connect()");
 
 	// 초기 데이터를 클래스 단위로 받아온다.
-	retval = recv(sock, (char*)& g_towers, sizeof(g_towers), 0);
-	if (retval == SOCKET_ERROR) err_display("recv()");
+	// retval = recv(sock, (char*)& g_towers, sizeof(g_towers), 0);
+	// if (retval == SOCKET_ERROR) err_display("recv()");
 	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
+	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(HARD_1);
+	// Game_state = EASY_1;
+	Game_state = MAIN_STATE;
+}
+void NetworkTimer(int value) {
+	int retval;
+	int sendBytes = sizeof(Tower_Packet);
+	char buf[BUFSIZE];
 
-	Game_state = EASY_1;
+	Tower_Packet packet = g_towers[g_myIdx].MakePacket();
+	retval = send(sock, (char*)& sendBytes, sizeof(int), 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
+	retval = send(sock, (char*)& packet, sendBytes, 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
+
+	int recvBytes = NULL;
+	retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+	if (retval == SOCKET_ERROR) err_display("recv()");
+	retval = recv(sock, buf, recvBytes, 0);
+	if (retval == SOCKET_ERROR) err_display("recv()");
+	buf[recvBytes] = '\0';
+	Tower_Packet* tPacket = (Tower_Packet*)buf;
+
+	for (int i = 0; i < MAX_USERS; ++i)
+		g_towers[i].Update(tPacket[i]);
+		
+	glutTimerFunc(100 / 3, NetworkTimer, 2);
 }
 
 //template<class T>

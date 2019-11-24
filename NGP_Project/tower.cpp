@@ -100,3 +100,27 @@ void Tower::Power_overwhelming()
 {
 	ball->Power_overwhelming();
 }
+
+Tower_Packet Tower::MakePacket() {
+	Tower_Packet tPacket;
+	tPacket.current_degree = current_degree;
+	tPacket.rotate_degree = rotate_degree;
+	tPacket.bPack = ball->MakePacket();
+	return tPacket;
+}
+void Tower::Update(Tower_Packet tPacket) {
+	int current_floor = ball->Get_floor();
+	Rotate_by_mouse(tPacket.rotate_degree);
+	current_degree = tPacket.current_degree;
+	ball->Update(tPacket.bPack);
+
+	// for (int i = 0; i < num_of_stages; i++)
+	// {
+	// 	stage[i].Update();
+	// }
+
+	//if (ball->Collide(stage[current_floor].Get_y(), stage//[current_floor].Get_state_of_tile(current_degree + rotate_degree)) == true)
+	//{
+	//	stage[current_floor].Destroy();
+	//}
+}

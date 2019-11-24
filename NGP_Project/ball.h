@@ -3,6 +3,7 @@
 #define __BALL_H__
 #pragma comment(lib, "winmm")
 #include <mmsystem.h>
+#include "globals.h"
 
 class Ball
 {
@@ -54,6 +55,9 @@ public:
 	void Fail();
 	void Victory();
 	void Power_overwhelming();
+
+	Ball_Packet MakePacket();
+	void Update(Ball_Packet bPack);
 };
 
 #endif

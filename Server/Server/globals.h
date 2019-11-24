@@ -14,7 +14,8 @@ struct Ball_Packet {
 	int floor;
 	int life;
 	int state;
-	int player_index;
+	double speed;
+	bool camera;
 };
 
 struct Tower_Packet {
@@ -23,8 +24,9 @@ struct Tower_Packet {
 	int rotate_degree;
 	int tile_index;
 	int tower_index;
-	int distroy_timer[12];
-	int distroy_dgree[12];
+	// int distroy_timer[12];
+	// int distroy_dgree[12];
+	Ball_Packet ball;
 };
 
 struct Mouse_Packet {

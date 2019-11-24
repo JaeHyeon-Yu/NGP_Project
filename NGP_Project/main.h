@@ -18,6 +18,7 @@ void Keyboard(unsigned char key, int x, int y);
 void Mouse(int button, int state, int x, int y);
 void Motion(int xp, int yp);
 void Control_light();
+void NetworkTimer(int value);
 
 GLubyte* LoadDIBitmap(const char* file_name, BITMAPINFO** info);
 void Init_Texture(GLubyte* pBytes, BITMAPINFO* info, GLuint* textures);

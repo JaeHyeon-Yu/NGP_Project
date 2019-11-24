@@ -316,3 +316,16 @@ void Ball::Power_overwhelming()
 		immotal = true;
 	}
 }
+
+Ball_Packet Ball::MakePacket() {
+	Ball_Packet bPacket{ y, floor, life, state, speed, camera_follow };
+	return bPacket;
+}
+void Ball::Update(Ball_Packet bPack) {
+	y = bPack.y;
+	floor = bPack.floor;
+	state = bPack.state;
+	life = bPack.life;
+	speed = bPack.speed;
+	camera_follow = bPack.camera;
+}
