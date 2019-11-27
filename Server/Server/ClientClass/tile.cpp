@@ -58,17 +58,12 @@ void Tile::Update()
 	
 }
 
-//for i in range(0, 100 + 1, 2) :
-//	t = i / 100
-//	x = (1 - t)*p1[0] + t * p2[0]
-//	y = (1 - t)*p1[1] + t * p2[1]
-//	draw_point((x, y))
 void Tile::Distroy(int i)
 {
 	state = 8;
 	distroy_degree += rand_degree;
 	double t = Distroy_timer / 100;
-	std::cout << t << std::endl;
+	
 	z = (2 * t*t - 3 * t + 1) * 0 + (-4 * t*t + 4 * t)*2.7 + (2 * t*t - t) * 4;
 	y = (2 * t*t - 3 * t + 1) * 0 + (-4 * t*t + 4 * t)*-2.2 + (2 * t*t - t)*-4;
 	Distroy_timer += 2;

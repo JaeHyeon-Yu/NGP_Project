@@ -3,9 +3,9 @@
 #define MAX_USERS 2
 #define BUFSIZE 512
 enum Ball_State {
-	Collide_EMPTY, Collide_BLINK, Collide_KILL,
+	EMPTY, Collide_BLINK, Collide_KILL,
 	Collide_NORMAL, Collide_ROTATE, Collide_BLIND,
-	Collide_GRAVITY
+	Collide_GRAVITY, WIN, LOOSE
 };
 struct Ball_Packet {
 	// Ball Class
@@ -20,8 +20,6 @@ struct Tower_Packet {
 	// Tower Class
 	int current_degree;
 	int rotate_degree;
-	// int distroy_timer[12];
-	// int distroy_dgree[12];
 	Ball_Packet bPack;
 };
 

@@ -1,7 +1,7 @@
 #include "tower.h"
 #include <iostream>
 
-void Tower::Initialize(int state)
+void Tower::Initialize(int state, int idx)
 {
 	this->state = state;
 
@@ -13,13 +13,15 @@ void Tower::Initialize(int state)
 		num_of_stages = 40;
 
 	stage = new Stage[num_of_stages];
-	ball = new Ball();
+	ball = new Ball(idx);
 	current_degree = 0;
 	rotate_degree = 0;
 	for (int i = 0; i < num_of_stages; i++)
 		stage[i].Initialize(i);	// 위로부터 몇번째 층인가
 
 	Load_Map();	// 맵파일 로딩
+
+	index = idx;
 }
 
 void Tower::Update()
@@ -83,7 +85,6 @@ void Tower::Fix_degree()
 void Tower::Rotate_half()
 {
 	current_degree += 180;
-	//rotate_degree += 180;
 }
 
 void Tower::Power_overwhelming()

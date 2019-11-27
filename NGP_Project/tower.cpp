@@ -49,19 +49,11 @@ void Tower::Update()
 	int current_floor = ball->Get_floor();
 	rotate_degree = rotate_degree % 360;
 
-	ball->Update();
 	
 	for (int i = 0; i < num_of_stages; i++)
 	{
 		stage[i].Update();
 	}
-	
-	if (ball->Collide(stage[current_floor].Get_y(), stage[current_floor].Get_state_of_tile(current_degree + rotate_degree)) == true)
-	{
-		stage[current_floor].Destroy();
-	}
-	
-
 }
 
 //이 아래로는 연산 함수, 후에 제거할 예정.

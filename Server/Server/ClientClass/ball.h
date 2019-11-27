@@ -38,9 +38,10 @@ private:
 
 	// 추가 변수
 	int state;
+	int index;
 
 public:
-	Ball();
+	Ball(int idx);
 	bool Collide(int floor, int tile_state);
 	void Update();
 	double Get_y();

@@ -243,7 +243,7 @@ void Timerfunction(int value)
 		// g_towers[1].Update();
 
 	}
-
+	NetworkTimer(0);
 	glutPostRedisplay();	// 화면 재출력
 	glutTimerFunc(100/3, Timerfunction, 1);
 }
@@ -381,8 +381,6 @@ void Control_light()
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPos_2);
 	glEnable(GL_LIGHT1);
 
-	
-	
 }
 
 void Draw_Background()
@@ -581,7 +579,7 @@ void InitConnect(WSADATA wsa)
 	// if (retval == SOCKET_ERROR) err_display("recv()");
 	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
-	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(EASY_1);
+	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(HARD_1);
 	// Game_state = EASY_1;
 	Game_state = MAIN_STATE;
 }
@@ -603,71 +601,8 @@ void NetworkTimer(int value) {
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	buf[recvBytes] = '\0';
 	Tower_Packet* tPacket = (Tower_Packet*)buf;
-	cout << recvBytes << endl;
 	for (int i = 0; i < MAX_USERS; ++i)
 		g_towers[i].Update(tPacket[i], i);
-		
-	glutTimerFunc(100 / 3, NetworkTimer, 2);
-}
 
-//template<class T>
-//bool recvn(SOCKET client_sock, const char* name, T File)//탬플릿으로 편하게 받아온다
-//{
-//	int retval;	//return value
-//	char buf[1025];	//버퍼[크기]
-//	size_t len{ 0 };	//파일의 총 크기를 저장하는 변수
-//
-//	//고정 길이 수신
-//	retval = recv(client_sock, (char*)&len, sizeof(size_t), 0);
-//
-//	if (retval == SOCKET_ERROR)
-//	{
-//		err_quit("recv()");
-//		return false;
-//	}
-//	else if (retval == 0)
-//		return false;
-//
-//	size_t remainData{ len };	//남아있는 데이터의 크기(초기화 시에는 len과 같은 크기로)
-//	size_t readsize{ 0 };	//읽어오는 크기
-//	size_t sentData{ 0 };
-//
-//	int prev_per{ 0 };	//업데이트 전의 percentage
-//	int curr_per{ 0 };	//현재 percentage
-//
-//	while (remainData)
-//	{
-//		if (remainData > BUFSIZE)
-//			readsize = BUFSIZE;
-//		else
-//			readsize = remainData;
-//
-//		//가변 길이 수신
-//		retval = recv(client_sock, buf, readsize, 0);
-//		if (retval == SOCKET_ERROR)
-//		{
-//			err_quit("recv()");
-//			return false;
-//		}
-//		else if (retval == 0)
-//			return false;
-//
-//		//std::copy(buffer, &buffer[읽어 온 바이트 수], File_pos)가 람다식으로 들어간다.
-//		File(buf, &buf[readsize]);
-//
-//		remainData -= readsize;
-//		sentData += readsize;
-//		curr_per = 100 * ((len * 1.f - remainData * 1.f) / len);
-//		if (name == "Getting file name.....")
-//			std::cout << name << std::endl;
-//		else if (prev_per != curr_per)
-//		{
-//			prev_per = curr_per;
-//			std::cout << "\r" << "[" << name << " : " << curr_per << "%]";
-//		}
-//	}
-//
-//	std::cout << "Complete." << std::endl;
-//
-//	return true;
-//}
+	//	glutTimerFunc(100 / 3, NetworkTimer, 2);
+}

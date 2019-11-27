@@ -56,186 +56,6 @@ void Ball::Draw()
 	glPopMatrix();
 }
 
-void Ball::Update()
-{
-	if (life == true)
-	{
-		speed += 0.0005*GRAVITY;
-		y -= speed;
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		if (ink[i].exist == true)
-		{
-			ink[i].timer++;
-			if (ink[i].timer > 60)
-			{
-				ink[i].timer = 0;
-				ink[i].exist = false;
-			}
-		}
-	}
-
-	if (Squeeze == 2)
-	{
-		Squeeze_timer -= 0.1;
-		if (Squeeze_timer < 0.5)
-		{
-			Squeeze = 1;
-		}
-	}
-	else if (Squeeze == 1)
-	{
-		Squeeze_timer += 0.1;
-		if (Squeeze_timer > 1)
-		{
-			Squeeze = 0;
-			Squeeze_timer = 1;
-		}
-	}
-
-	if (life == false)
-	{
-		wire_size += 0.1;
-		if (wire_size > 5)
-		{
-			Fail();
-		}
-	}
-}
-
-bool Ball::Collide(int floor, int tile_state)
-{
-	if (life == true)
-	{
-		if (speed < 0.25)
-		{
-			if (y < floor + 0.2 && tile_state == NORMAL_TILE)
-			{
-				speed = -0.1;
-				camera_follow = false;
-				Squeeze = 2;
-				PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
-			}
-			else if (y < floor + 0.2 && tile_state == ROTATE_TILE)
-			{
-				y = floor + 0.2;
-				speed = -0.1;
-				camera_follow = false;
-				Squeeze = 2;
-				tower.Rotate_half();
-				PlaySound("Sound/rotate.wav", NULL, SND_ASYNC);
-			}
-
-			else if (y < floor + 0.2 && tile_state == BLIND_TILE)
-			{
-				speed = -0.1;
-				camera_follow = false;
-				Squeeze = 2;
-				PlaySound("Sound/spit.wav", NULL, SND_ASYNC);
-
-				for (int i = 0; i < 3; i++)
-				{
-					if (ink[i].exist == false)
-					{
-						ink[i].exist = true;
-						ink[i].x1 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y1 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].x2 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y2 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].x3 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y3 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].x4 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y4 = (rand() / (double)RAND_MAX) * 2 - 1;
-						break;
-					}
-				}
-			}
-			else if (y < floor + 0.4 && tile_state == GRAVITY_FREE_TILE)
-			{
-				speed = -0.0007*GRAVITY;
-
-			}
-			else if (y < floor + 0.1 && tile_state == EMPTY_TILE)
-			{
-				this->floor += 1;
-				camera_follow = true;
-			}
-			else if (y < floor + 0.1 && tile_state == 8)
-			{
-				this->floor += 1;
-				camera_follow = true;
-			}
-			else if (y < floor + 0.2 && tile_state == KILL_TILE)
-			{
-				if (immotal == false)
-				{
-					if (life == true)
-					{
-						PlaySound("Sound/die.wav", NULL, SND_ASYNC);
-					}
-					speed = 0;
-					life = false;
-				}
-				else if (immotal == true)
-				{
-					speed = -0.1;
-					camera_follow = false;
-					Squeeze = 2;
-					PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
-				}
-			}
-			else if (y < floor + 0.2 && tile_state == BLINK_TILE)
-			{
-				if (immotal == false)
-				{
-					if (life == true)
-					{
-						PlaySound("Sound/die.wav", NULL, SND_ASYNC);
-					}
-					speed = 0;
-					life = false;
-				}
-				else if (immotal == true)
-				{
-					speed = -0.1;
-					camera_follow = false;
-					Squeeze = 2;
-					PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
-				}
-			}
-			else if (y < floor + 0.2 && tile_state == END_TILE)
-			{
-				Victory();
-			}
-		}
-		if (speed >= 0.25)
-		{
-			if (y < floor + 0.1 && tile_state == EMPTY_TILE)
-			{
-				this->floor += 1;
-				camera_follow = true;
-			}
-			else if (y < floor + 0.2 && tile_state == END_TILE)
-			{
-				Victory();
-			}
-			else if (y < floor + 0.2&&tile_state != EMPTY_TILE)
-			{
-				speed = -0.1;
-				camera_follow = true;
-				PlaySound("Sound/break.wav", NULL, SND_ASYNC);
-				return true;
-			}
-		}
-	}
-
-			
-	return false;
-}
-
-
 int Ball::Get_floor()
 {
 	return floor;
@@ -333,7 +153,8 @@ void Ball::Update(Ball_Packet bPack, int idx) {
 	if (idx == g_myIdx) PlaySoundEffect();
 }
 void Ball::PlaySoundEffect() {
-
+	if (state == WIN) 
+		PlaySound("Sound/win.wav", NULL, SND_SYNC);
 	if (state == Collide_NORMAL) 
 		PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 	if (state == Collide_ROTATE)
@@ -342,7 +163,6 @@ void Ball::PlaySoundEffect() {
 		PlaySound("Sound/spit.wav", NULL, SND_ASYNC);
 	if (state == Collide_KILL)
 		PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
-	
-	std::cout << state << std::endl;
+
 	state = 0;
 }

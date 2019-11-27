@@ -2,7 +2,7 @@
 #include "tower.h"
 #include <iostream>
 int Game_state;
-Tower tower;
+extern Tower g_towerArr[MAX_USERS];
 #define GRAVITY 9.8
 
 #define EMPTY_TILE 0
@@ -14,7 +14,7 @@ Tower tower;
 #define ROTATE_TILE 6
 #define END_TILE 9
 
-Ball::Ball()
+Ball::Ball(int idx)
 {
 	x = 0;
 	y = 0.5;
@@ -28,11 +28,12 @@ Ball::Ball()
 	life = true;
 	immotal = false;
 	wire_size = 0.07;
+	index = idx;
 }
 
 void Ball::Update()
 {
-	if (life == true)
+	if (life == true && state != WIN)
 	{
 		speed += 0.0005*GRAVITY;
 		y -= speed;
@@ -77,6 +78,9 @@ void Ball::Update()
 			Fail();
 		}
 	}
+
+	// 승리 상태에 들어가면 spd를 0으로 초기화시킨다.
+	if (state == WIN) speed = 0;
 }
 
 bool Ball::Collide(int floor, int tile_state)
@@ -98,7 +102,7 @@ bool Ball::Collide(int floor, int tile_state)
 				speed = -0.1;
 				camera_follow = false;
 				Squeeze = 2;
-				tower.Rotate_half();
+				g_towerArr[index].Rotate_half();
 				state = Collide_ROTATE;
 			}
 
@@ -178,7 +182,6 @@ bool Ball::Collide(int floor, int tile_state)
 			}
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
-				Victory();
 				state = WIN;
 			}
 		}
@@ -191,8 +194,9 @@ bool Ball::Collide(int floor, int tile_state)
 			}
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
-				Victory();
 				state = WIN;
+
+				// Victory();
 			}
 			else if (y < floor + 0.2&&tile_state != EMPTY_TILE)
 			{

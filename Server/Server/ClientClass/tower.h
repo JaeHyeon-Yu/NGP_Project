@@ -15,9 +15,10 @@ private:
 	int num_of_stages;
 
 	int xpos;
+	int index;
 public:
 	void Load_Map();
-	void Initialize(int state);
+	void Initialize(int state, int idx);
 
 	void Update();
 	void Rotate_plus();
