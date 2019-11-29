@@ -579,7 +579,7 @@ void InitConnect(WSADATA wsa)
 	// if (retval == SOCKET_ERROR) err_display("recv()");
 	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
-	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(HARD_1);
+	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(EASY_1);
 	// Game_state = EASY_1;
 	Game_state = MAIN_STATE;
 }
@@ -587,6 +587,7 @@ void NetworkTimer(int value) {
 	int retval;
 	int sendBytes = sizeof(Tower_Packet);
 	char buf[BUFSIZE];
+
 
 	Tower_Packet packet = g_towers[g_myIdx].MakePacket();
 	retval = send(sock, (char*)& sendBytes, sizeof(int), 0);

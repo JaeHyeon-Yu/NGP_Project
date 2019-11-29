@@ -10,7 +10,7 @@ enum POS_INFO {
 enum Ball_State {
 	EMPTY, Collide_BLINK, Collide_KILL,
 	Collide_NORMAL, Collide_ROTATE, Collide_BLIND,
-	Collide_GRAVITY, WIN, LOOSE
+	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END
 };
 struct Ball_Packet {
 	// Ball Class
@@ -25,8 +25,6 @@ struct Tower_Packet {
 	// Tower Class
 	int current_degree;
 	int rotate_degree;
-	// int distroy_timer[12];
-	// int distroy_dgree[12];
 	Ball_Packet ball;
 };
 

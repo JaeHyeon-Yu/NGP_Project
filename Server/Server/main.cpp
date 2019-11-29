@@ -226,7 +226,7 @@ DWORD WINAPI SendThread(LPVOID arg) {
 }
 void Initialize(int idx) {
 	if (idx < 0 || idx >= MAX_USERS) return; 
-	int tower_level = HARD_1;
+	int tower_level = EASY_1;
 
 	g_towerArr[idx].Initialize(tower_level, idx);
 }

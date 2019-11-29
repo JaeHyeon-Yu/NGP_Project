@@ -58,6 +58,7 @@ public:
 	Ball_Packet MakePacket();
 	void Initialize(int idx);
 	void Update(Ball_Packet bPack);
+	void SetState(int s) { state = s; };
 };
 
 #endif

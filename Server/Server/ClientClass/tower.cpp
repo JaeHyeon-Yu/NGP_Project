@@ -29,7 +29,6 @@ void Tower::Update()
 	int current_floor = ball->Get_floor();
 	rotate_degree = rotate_degree % 360;
 
-	ball->Update();
 	
 	for (int i = 0; i < num_of_stages; i++)
 	{
@@ -41,6 +40,7 @@ void Tower::Update()
 		stage[current_floor].Distroy();
 	}
 	
+	ball->Update();
 
 }
 
@@ -103,4 +103,7 @@ void Tower::Update(Tower_Packet tPacket) {
 	current_degree = tPacket.current_degree;
 	ball->Update(tPacket.ball);
 	Update();
+}
+void Tower::SetState(int s) {
+	ball->SetState(s);
 }

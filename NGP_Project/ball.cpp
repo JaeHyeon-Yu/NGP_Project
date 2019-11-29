@@ -153,16 +153,18 @@ void Ball::Update(Ball_Packet bPack, int idx) {
 	if (idx == g_myIdx) PlaySoundEffect();
 }
 void Ball::PlaySoundEffect() {
-	if (state == WIN) 
-		PlaySound("Sound/win.wav", NULL, SND_SYNC);
-	if (state == Collide_NORMAL) 
+	if (state == WIN)
+		PlaySound("Sound/win.wav", NULL, SND_ASYNC);
+	if (state == Collide_NORMAL)
 		PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 	if (state == Collide_ROTATE)
 		PlaySound("Sound/rotate.wav", NULL, SND_ASYNC);
 	if (state == Collide_BLIND)
 		PlaySound("Sound/spit.wav", NULL, SND_ASYNC);
 	if (state == Collide_KILL)
+		PlaySound("Sound/die.wav", NULL, SND_ASYNC);
+	if (state == TILE_BREAK)
+		PlaySound("Sound/break.wav", NULL, SND_ASYNC);
+	if (state == LOOSE)
 		PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
-
-	state = 0;
 }

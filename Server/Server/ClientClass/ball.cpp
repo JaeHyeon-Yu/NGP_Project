@@ -13,7 +13,11 @@ extern Tower g_towerArr[MAX_USERS];
 #define BLINK_TILE 5
 #define ROTATE_TILE 6
 #define END_TILE 9
-
+int OtherTndex(int myidx) {
+	if (myidx == 0) return 1;
+	else if (myidx == 1) return 0;
+	else return -1;
+}
 Ball::Ball(int idx)
 {
 	x = 0;
@@ -33,7 +37,12 @@ Ball::Ball(int idx)
 
 void Ball::Update()
 {
-	if (life == true && state != WIN)
+	if (state == WIN || state == LOOSE) {
+		state = END;
+		return;
+	}
+	
+	if (life == true)
 	{
 		speed += 0.0005*GRAVITY;
 		y -= speed;
@@ -85,6 +94,8 @@ void Ball::Update()
 
 bool Ball::Collide(int floor, int tile_state)
 {
+	
+
 	if (life == true)
 	{
 		if (speed < 0.25)
@@ -102,8 +113,13 @@ bool Ball::Collide(int floor, int tile_state)
 				speed = -0.1;
 				camera_follow = false;
 				Squeeze = 2;
-				g_towerArr[index].Rotate_half();
 				state = Collide_ROTATE;
+
+				int other = OtherTndex(index);
+				if (other == -1) return false;
+
+				g_towerArr[other].SetState(Collide_ROTATE);
+				g_towerArr[other].Rotate_half();
 			}
 
 			else if (y < floor + 0.2 && tile_state == BLIND_TILE)
@@ -183,6 +199,10 @@ bool Ball::Collide(int floor, int tile_state)
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
 				state = WIN;
+				int other = OtherTndex(index);
+				if (other == -1) return false;
+
+				g_towerArr[other].SetState(LOOSE);
 			}
 		}
 		if (speed >= 0.25)
@@ -195,13 +215,17 @@ bool Ball::Collide(int floor, int tile_state)
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
 				state = WIN;
+				int other = OtherTndex(index);
+				if (other == -1) return false;
 
+				g_towerArr[other].SetState(LOOSE);
 				// Victory();
 			}
 			else if (y < floor + 0.2&&tile_state != EMPTY_TILE)
 			{
 				speed = -0.1;
 				camera_follow = true;
+				state = TILE_BREAK;
 				return true;
 			}
 		}
@@ -264,5 +288,5 @@ void Ball::Initialize(int idx) {
 	}
 }
 void Ball::Update(Ball_Packet bPack) {
-	state = bPack.state;
+	state = 0;
 }
