@@ -11,12 +11,13 @@
 #define MAIN_STATE 4
 #define DEFEAT_STATE 5
 #define WIN_STATE 6
+#define END_STATE 7
 // ================================//
 
 enum Ball_State {
 	EMPTY, Collide_BLINK, Collide_KILL,
 	Collide_NORMAL, Collide_ROTATE, Collide_BLIND,
-	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK
+	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END
 };
 struct Ball_Packet {
 	// Ball Class
@@ -25,6 +26,7 @@ struct Ball_Packet {
 	int state;
 	double speed;
 	bool camera;
+	int life;
 };
 
 struct Tower_Packet {
@@ -32,9 +34,20 @@ struct Tower_Packet {
 	int current_degree;
 	int rotate_degree;
 	Ball_Packet bPack;
+	int game_state;
 };
 
 struct Mouse_Packet {
 	bool state;
 	int x;
+};
+
+struct Destroy_Packet {
+	int towerIdx;
+	int stageIdx;
+};
+
+struct Change_Packet {
+	int stageIdx;
+	int tileIdx;
 };

@@ -30,7 +30,7 @@ Ball::Ball()
 	Squeeze_timer = 1;
 	Squeeze = 0;
 	camera_follow = false; // 어지럼증을 방지하기 위함인듯한 변수, 항상 참으로 놓으면 카메라가 공을 따라 위아래로 계속 움직인다.
-	life = true;
+	life = 5;
 	immotal = false;
 	wire_size = 0.07;
 }
@@ -117,13 +117,13 @@ void Ball::Draw_ink()
 void Ball::Fail()
 {
 	PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
-	Game_state = 4;
+
 }
 
 void Ball::Victory()
 {
 	PlaySound("Sound/win.wav", NULL, SND_ASYNC);
-	Game_state = 5;
+
 }
 
 void Ball::Power_overwhelming()
@@ -139,7 +139,7 @@ void Ball::Power_overwhelming()
 }
 
 Ball_Packet Ball::MakePacket() {
-	Ball_Packet bPacket{ y, floor, state, speed, camera_follow };
+	Ball_Packet bPacket{ y, floor, state, speed, camera_follow, life };
 	bPacket.state = state;
 	return bPacket;
 }
@@ -149,12 +149,20 @@ void Ball::Update(Ball_Packet bPack, int idx) {
 	state = bPack.state;
 	speed = bPack.speed;
 	camera_follow = bPack.camera;
-
+	life = bPack.life;
 	if (idx == g_myIdx) PlaySoundEffect();
+
+	// 임시로 state의 값을 클라이언트에서 바꿔준다. 
+	// 추후 GameState를 통한 예외처리로 수정하여 클라이언트에서 값을 변경하지 않도록 할것
+
 }
 void Ball::PlaySoundEffect() {
+	if (Game_state == END_STATE) return;
+
 	if (state == WIN)
 		PlaySound("Sound/win.wav", NULL, SND_ASYNC);
+	if (state == LOOSE) 
+		PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
 	if (state == Collide_NORMAL)
 		PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 	if (state == Collide_ROTATE)
@@ -165,6 +173,4 @@ void Ball::PlaySoundEffect() {
 		PlaySound("Sound/die.wav", NULL, SND_ASYNC);
 	if (state == TILE_BREAK)
 		PlaySound("Sound/break.wav", NULL, SND_ASYNC);
-	if (state == LOOSE)
-		PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
 }

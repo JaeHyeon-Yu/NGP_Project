@@ -15,7 +15,7 @@ private:
 	int floor;	//현재 공이 있는 층
 	float size;
 	float wire_size; //플레이어가 죽었을 때 효과를 위한 wireframe 공 크기
-	bool life;
+	int life;
 	bool camera_follow;	//카메라무빙
 	bool immotal;
 
@@ -59,6 +59,7 @@ public:
 	Ball_Packet MakePacket();
 	void Update(Ball_Packet bPack, int idx);
 	void PlaySoundEffect();
+	int GetLife() { return life; }
 };
 
 #endif

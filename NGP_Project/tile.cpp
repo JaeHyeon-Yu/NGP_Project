@@ -186,7 +186,6 @@ void Tile::Destroy(int i)
 	state = 8;
 	destroy_degree += rand_degree;
 	double t = Destroy_timer / 100;
-	std::cout << t << std::endl;
 	z = (2 * t*t - 3 * t + 1) * 0 + (-4 * t*t + 4 * t)*2.7 + (2 * t*t - t) * 4;
 	y = (2 * t*t - 3 * t + 1) * 0 + (-4 * t*t + 4 * t)*-2.2 + (2 * t*t - t)*-4;
 	Destroy_timer += 2;

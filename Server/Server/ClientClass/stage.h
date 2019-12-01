@@ -17,11 +17,13 @@ public:
 	void Initialize(int floor);
 	// void Draw_Stage();
 	int Get_y();
-	int Get_state_of_tile(int tower_drgree);
+	int Get_state_of_tile(int tower_degree);
 	void Load_Tile_Data(int data, int n);
 
 	void Distroy();
 	void Update();
+
+	int GetTileIdx(int tower_degree);
 };
 
 #endif // !__STAGE_H__

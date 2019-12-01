@@ -107,9 +107,10 @@ void Stage::Update()
 {
 	for (int i = 0; i < NUM_OF_TILES; i++)
 	{
-		tile[i].Update();
+		// tile[i].Update(); // 비어있누...
 		if (destroyed_stage == true && tile[i].Get_state() != 0)
 		{
+			std::cout << "tile_break;" << std::endl;
 			tile[i].Destroy(i);
 		}
 	}

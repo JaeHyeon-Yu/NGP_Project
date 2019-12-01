@@ -36,5 +36,8 @@ public:
 	Tower_Packet MakePacket();
 	void Update(Tower_Packet tPacket);
 	void SetState(int s);
+	int GetDegree();
+	void SetCollideTile();
+	int GetTileIdx(int);
 };
 #endif // !__TOWER_H__

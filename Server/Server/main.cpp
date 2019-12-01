@@ -44,7 +44,7 @@ void err_display(char* msg) {
 
 // global val--------
 int g_users{ 0 };
-int g_gameState{ 0 };
+int g_gameState{ MAIN_STATE };
 Tower g_towerArr[2];
 SOCKET g_sockets[2]{ NULL, NULL };
 StagingPacket g_sPack[2]{ NULL, NULL };
@@ -199,9 +199,6 @@ DWORD WINAPI SendThread(LPVOID arg) {
 			// 패킷을 인자로 넣어서 Update
 			g_towerArr[i].Update(g_sPack[i].tPacket);
 
-		
-
-
 		Tower_Packet tPacket[MAX_USERS];
 		tPacket[0] = g_towerArr[0].MakePacket();
 		tPacket[1] = g_towerArr[1].MakePacket();
@@ -215,6 +212,42 @@ DWORD WINAPI SendThread(LPVOID arg) {
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
 				break;
+			}
+		}
+
+		for (int i = 0; i < MAX_USERS; ++i) {
+			// Tile Break--
+			if (tPacket[i].ball.state == TILE_BREAK) {
+				Destroy_Packet dPacket{ i, tPacket[i].ball.floor };
+				sendLen = sizeof(Destroy_Packet);
+
+				for (int j = 0; j < MAX_USERS; ++j) {
+					retval = send(g_sockets[j], (char*)& sendLen, sizeof(int), 0);
+					if (retval == SOCKET_ERROR) err_display("send()");
+					retval = send(g_sockets[j], (char*)& dPacket, sendLen, 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < MAX_USERS; ++i) {
+			// Tile Change --
+			if (tPacket[i].ball.state == Collide_KILL) {
+				Change_Packet cPacket{ tPacket[i].ball.floor, g_towerArr[i].GetTileIdx(tPacket[i].ball.floor) };
+				sendLen = sizeof(Change_Packet);
+
+				for (int j = 0; j < MAX_USERS; ++j) {
+					retval = send(g_sockets[j], (char*)& sendLen, sizeof(int), 0);
+					if (retval == SOCKET_ERROR) err_display("send()");
+					retval = send(g_sockets[j], (char*)& cPacket, sendLen, 0);
+					if (retval == SOCKET_ERROR) {
+						err_display("send()");
+						break;
+					}
+				}
 			}
 		}
 

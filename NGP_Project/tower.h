@@ -35,5 +35,8 @@ public:
 	
 	Tower_Packet MakePacket();
 	void Update(Tower_Packet tPacket, int idx);
+	void StageUpdate(Destroy_Packet dPacket);
+	int GetBallLife();
+	void SetTile(Change_Packet cPack);
 };
 #endif // !__TOWER_H__

@@ -394,16 +394,16 @@ void Draw_Background()
 	glNormal3f(0, 0, 1);
 		glColor3f(1, 1, 1);
 		glTexCoord2i(0, 1);
-		glVertex3f(-10, 10, 0);
+		glVertex3f(-20, 10, 0);
 
 		glTexCoord2i(1, 1);
-		glVertex3f(10, 10, 0);
+		glVertex3f(20, 10, 0);
 
 		glTexCoord2i(1, 0);
-		glVertex3f(10, -10, 0);
+		glVertex3f(20, -10, 0);
 
 		glTexCoord2i(0, 0);
-		glVertex3f(-10, -10, 0);
+		glVertex3f(-20, -10, 0);
 	glEnd();
 
 	glPopMatrix();
@@ -434,14 +434,15 @@ void Draw_Level()
 		strcpy_s(str, "Level : HARD_2");
 		break;
 	}
-
+	string s = "Life : " + to_string(g_towers[g_myIdx].GetBallLife());
 	glEnable(GL_COLOR_MATERIAL);
 	glColor3f(0, 0, 0);
 	glRasterPos2f(1, 2.5);//아니 이건 또 뭔 함수야
 
 	int len = (int)strlen(str);
+	len = s.length();
 	for (int i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, s[i]);
 }
 
 void Draw_Title()
@@ -575,8 +576,6 @@ void InitConnect(WSADATA wsa)
 	if (retval == SOCKET_ERROR)err_quit("connect()");
 
 	// 초기 데이터를 클래스 단위로 받아온다.
-	// retval = recv(sock, (char*)& g_towers, sizeof(g_towers), 0);
-	// if (retval == SOCKET_ERROR) err_display("recv()");
 	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(EASY_1);
@@ -602,6 +601,36 @@ void NetworkTimer(int value) {
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	buf[recvBytes] = '\0';
 	Tower_Packet* tPacket = (Tower_Packet*)buf;
+
+	for (int i = 0; i < MAX_USERS; ++i) {
+		// Recv Packet for Tile Destroy
+		if (tPacket[i].bPack.state != TILE_BREAK) continue;
+
+		recvBytes = 0;
+		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		retval = recv(sock, buf, recvBytes, 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		buf[recvBytes] = '\0';
+		Destroy_Packet* dPacket = (Destroy_Packet*)buf;
+
+		g_towers[i].StageUpdate(*dPacket);
+	}
+
+	for (int i = 0; i < MAX_USERS; ++i) {
+		// Recv Packet for Tile Change
+		if (tPacket[i].bPack.state != Collide_KILL) continue;
+
+		recvBytes = 0;
+		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		retval = recv(sock, buf, recvBytes, 0);
+		if (retval == SOCKET_ERROR) err_display("recv()");
+		buf[recvBytes] = '\0';
+		Change_Packet* cPacket = (Change_Packet*)buf;
+		g_towers[i].SetTile(*cPacket);
+	}
+	Game_state = tPacket->game_state;
 	for (int i = 0; i < MAX_USERS; ++i)
 		g_towers[i].Update(tPacket[i], i);
 

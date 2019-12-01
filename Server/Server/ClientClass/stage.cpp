@@ -102,3 +102,22 @@ void Stage::Update()
 		}
 	}
 }
+int Stage::GetTileIdx(int tower_degree)
+{
+	tower_degree = ((tower_degree % 360) + 360) % 360;
+
+	if (330 <= tower_degree && tower_degree < 360) return 0;
+	else if (0 <= tower_degree && tower_degree < 30) return 1;
+	else if (30 <= tower_degree && tower_degree < 60) return 2;
+	else if (60 <= tower_degree && tower_degree < 90) return 3;
+	else if (90 <= tower_degree && tower_degree < 120) return 4;
+	else if (120 <= tower_degree && tower_degree < 150) return 5;
+	else if (150 <= tower_degree && tower_degree < 180) return 6;
+	else if (180 <= tower_degree && tower_degree < 210) return 7;
+	else if (210 <= tower_degree && tower_degree < 240) return 8;
+	else if (240 <= tower_degree && tower_degree < 270) return 9;
+	else if (270 <= tower_degree && tower_degree < 300) return 10;
+	else if (300 <= tower_degree && tower_degree < 330) return 11;
+
+	return -1;
+}

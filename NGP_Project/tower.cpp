@@ -1,5 +1,7 @@
 #include "tower.h"
 #include <iostream>
+extern int Game_state;
+#define NORMAL_TILE 1
 
 void Tower::Initialize(int state)
 {
@@ -98,6 +100,7 @@ Tower_Packet Tower::MakePacket() {
 	tPacket.current_degree = current_degree;
 	tPacket.rotate_degree = rotate_degree;
 	tPacket.bPack = ball->MakePacket();
+	tPacket.game_state;
 	return tPacket;
 }
 void Tower::Update(Tower_Packet tPacket, int idx) {
@@ -105,14 +108,23 @@ void Tower::Update(Tower_Packet tPacket, int idx) {
 	current_degree = tPacket.current_degree;
 	Rotate_by_mouse(tPacket.rotate_degree);
 	ball->Update(tPacket.bPack, idx);
-
-	// for (int i = 0; i < num_of_stages; i++)
-	// {
-	// 	stage[i].Update();
-	// }
+	
+	for (int i = 0; i < num_of_stages; i++)
+	{
+		stage[i].Update();
+	}
 
 	//if (ball->Collide(stage[current_floor].Get_y(), stage//[current_floor].Get_state_of_tile(current_degree + rotate_degree)) == true)
 	//{
 	//	stage[current_floor].Destroy();
 	//}
+}
+void Tower::StageUpdate(Destroy_Packet dPacket) {
+	stage[dPacket.stageIdx].Destroy();
+}
+int Tower::GetBallLife() {
+	return ball->GetLife();
+}
+void Tower::SetTile(Change_Packet cPack) {
+	stage[cPack.stageIdx].Load_Tile_Data(NORMAL_TILE, cPack.tileIdx);
 }

@@ -1,7 +1,7 @@
 #include "ball.h"
 #include "tower.h"
 #include <iostream>
-int Game_state;
+extern int g_gameState;
 extern Tower g_towerArr[MAX_USERS];
 #define GRAVITY 9.8
 
@@ -29,20 +29,28 @@ Ball::Ball(int idx)
 	Squeeze_timer = 1;
 	Squeeze = 0;
 	camera_follow = false;
-	life = true;
+	life = MAX_LIFE;
 	immotal = false;
-	wire_size = 0.07;
 	index = idx;
 }
 
 void Ball::Update()
-{
-	if (state == WIN || state == LOOSE) {
-		state = END;
-		return;
+{	
+	if (state == WIN || state == LOOSE) g_gameState = END_STATE;
+	if (life <= 0) state = LOOSE;
+	if (state == WIN) {
+		int other = OtherTndex(index);
+		if (other == -1) return;
+
+		g_towerArr[other].SetState(LOOSE);
 	}
-	
-	if (life == true)
+	else if (state == LOOSE) {
+		int other = OtherTndex(index);
+		if (other == -1) return;
+
+		g_towerArr[other].SetState(WIN);
+	}
+	if (life > 0)
 	{
 		speed += 0.0005*GRAVITY;
 		y -= speed;
@@ -79,7 +87,7 @@ void Ball::Update()
 		}
 	}
 
-	if (life == false)
+	if (life <= 0)
 	{
 		wire_size += 0.1;
 		if (wire_size > 5)
@@ -94,9 +102,10 @@ void Ball::Update()
 
 bool Ball::Collide(int floor, int tile_state)
 {
-	
+	if (g_gameState == END_STATE) return false;
+	if (life <= 0) return false;
 
-	if (life == true)
+	if (life > 0)
 	{
 		if (speed < 0.25)
 		{
@@ -163,21 +172,11 @@ bool Ball::Collide(int floor, int tile_state)
 			}
 			else if (y < floor + 0.2 && tile_state == KILL_TILE)
 			{
-				if (immotal == false)
-				{
-					if (life == true)
-					{
-					}
-					state = Collide_KILL;
-					speed = 0;
-					life = false;
-				}
-				else if (immotal == true)
-				{
-					speed = -0.1;
-					camera_follow = false;
-					Squeeze = 2;
-				}
+				state = Collide_KILL;
+				speed = -0.1;
+				life -= 1;
+				
+				g_towerArr[index].SetCollideTile();
 			}
 			else if (y < floor + 0.2 && tile_state == BLINK_TILE)
 			{
@@ -187,7 +186,7 @@ bool Ball::Collide(int floor, int tile_state)
 					{
 					}
 					speed = 0;
-					life = false;
+					life -= 1;
 				}
 				else if (immotal == true)
 				{
@@ -252,12 +251,12 @@ bool Ball::Get_camera()
 
 void Ball::Fail()
 {
-	Game_state = 4;
+	//Game_state = 4;
 }
 
 void Ball::Victory()
 {
-	Game_state = 5;
+	//Game_state = 5;
 }
 
 void Ball::Power_overwhelming()
@@ -272,7 +271,7 @@ void Ball::Power_overwhelming()
 	}
 }
 Ball_Packet Ball::MakePacket() {
-	Ball_Packet pPacket{ y, floor, state, speed, camera_follow };
+	Ball_Packet pPacket{ y, floor, state, speed, camera_follow, life };
 	return pPacket;
 }
 void Ball::Initialize(int idx) {
@@ -288,5 +287,7 @@ void Ball::Initialize(int idx) {
 	}
 }
 void Ball::Update(Ball_Packet bPack) {
-	state = 0;
+	if (bPack.state == WIN || bPack.state == LOOSE)
+		state = bPack.state;
+	else state = EMPTY;
 }

@@ -13,7 +13,7 @@ private:
 	int floor;	//현재 공이 있는 층
 	float size;
 	float wire_size;
-	bool life;
+	int life;
 	bool camera_follow;	//카메라무빙
 	bool immotal;
 
