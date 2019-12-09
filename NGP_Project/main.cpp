@@ -114,7 +114,7 @@ GLvoid drawScene(GLvoid)
 	//데이터 전송이 필요하기 때문에 Game_state함수는 다른 함수에서 따로 관리할 필요가 있다.
 	//반드시 데이터 전송->랜더링 순이어야 하기 때문에 순서제어가 필요하다.
 	//반드시 쓰레드로 나눌 필요가 있는가?
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // 바탕색 깜장색! 깜장색!
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 설정된 색으로 전체를 칠하기, 깊이버퍼 클리어
 
 	if(!bmp_load)	

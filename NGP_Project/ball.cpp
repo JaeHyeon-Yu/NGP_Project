@@ -154,7 +154,36 @@ void Ball::Update(Ball_Packet bPack, int idx) {
 
 	// 임시로 state의 값을 클라이언트에서 바꿔준다. 
 	// 추후 GameState를 통한 예외처리로 수정하여 클라이언트에서 값을 변경하지 않도록 할것
-
+	if (state == BLIND && idx == g_myIdx) {
+		for (int i = 0; i < 3; i++)
+		{
+			if (ink[i].exist == false)
+			{
+				ink[i].exist = true;
+				ink[i].x1 = (rand() / (double)RAND_MAX) * 2 + (3 * idx - 2);
+				ink[i].y1 = (rand() / (double)RAND_MAX) * 2 - 1;
+				ink[i].x2 = (rand() / (double)RAND_MAX) * 2 + (3 * idx - 2);
+				ink[i].y2 = (rand() / (double)RAND_MAX) * 2 - 1;
+				ink[i].x3 = (rand() / (double)RAND_MAX) * 2 + (3 * idx - 2);
+				ink[i].y3 = (rand() / (double)RAND_MAX) * 2 - 1;
+				ink[i].x4 = (rand() / (double)RAND_MAX) * 2 + (3 * idx - 2);
+				ink[i].y4 = (rand() / (double)RAND_MAX) * 2 - 1;
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < 3; i++)
+	{
+		if (ink[i].exist == true)
+		{
+			ink[i].timer++;
+			if (ink[i].timer > 60)
+			{
+				ink[i].timer = 0;
+				ink[i].exist = false;
+			}
+		}
+	}
 }
 void Ball::PlaySoundEffect() {
 	if (Game_state == END_STATE) return;
@@ -167,7 +196,7 @@ void Ball::PlaySoundEffect() {
 		PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
 	if (state == Collide_ROTATE)
 		PlaySound("Sound/rotate.wav", NULL, SND_ASYNC);
-	if (state == Collide_BLIND)
+	if (state == BLIND)
 		PlaySound("Sound/spit.wav", NULL, SND_ASYNC);
 	if (state == Collide_KILL)
 		PlaySound("Sound/die.wav", NULL, SND_ASYNC);

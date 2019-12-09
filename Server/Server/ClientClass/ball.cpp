@@ -56,18 +56,6 @@ void Ball::Update()
 		y -= speed;
 	}
 
-	for (int i = 0; i < 3; i++)
-	{
-		if (ink[i].exist == true)
-		{
-			ink[i].timer++;
-			if (ink[i].timer > 60)
-			{
-				ink[i].timer = 0;
-				ink[i].exist = false;
-			}
-		}
-	}
 
 	if (Squeeze == 2)
 	{
@@ -104,7 +92,7 @@ bool Ball::Collide(int floor, int tile_state)
 {
 	if (g_gameState == END_STATE) return false;
 	if (life <= 0) return false;
-
+	if (state != EMPTY) return false;
 	if (life > 0)
 	{
 		if (speed < 0.25)
@@ -137,23 +125,10 @@ bool Ball::Collide(int floor, int tile_state)
 				camera_follow = false;
 				Squeeze = 2;
 
-				for (int i = 0; i < 3; i++)
-				{
-					if (ink[i].exist == false)
-					{
-						ink[i].exist = true;
-						ink[i].x1 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y1 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].x2 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y2 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].x3 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y3 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].x4 = (rand() / (double)RAND_MAX) * 2 - 1;
-						ink[i].y4 = (rand() / (double)RAND_MAX) * 2 - 1;
-						break;
-					}
-				}
-				state = Collide_BLIND;
+				int other = OtherTndex(index);
+				if (other == -1) return false;
+
+				g_towerArr[other].SetState(BLIND);
 			}
 			else if (y < floor + 0.4 && tile_state == GRAVITY_FREE_TILE)
 			{

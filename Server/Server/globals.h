@@ -20,7 +20,7 @@ enum POS_INFO {
 };
 enum Ball_State {
 	EMPTY, Collide_BLINK, Collide_KILL,
-	Collide_NORMAL, Collide_ROTATE, Collide_BLIND,
+	Collide_NORMAL, Collide_ROTATE, BLIND,
 	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END
 };
 struct Ball_Packet {

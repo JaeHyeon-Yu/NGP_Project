@@ -7,6 +7,7 @@
 #define NORMAL_2 4
 #define HARD_1 5
 #define HARD_2 6
+#define MULTI 7
 // ≥≠¿Ãµµ
 
 class Tile

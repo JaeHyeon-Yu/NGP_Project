@@ -11,7 +11,7 @@ void Tower::Load_Map()
 	switch (state)
 	{
 	case EASY_1:
-		fp = fopen("Map/easy1.txt", "rt");
+		fp = fopen("Map/multi.txt", "rt");
 		break;
 	case EASY_2:
 		fp = fopen("Map/easy2.txt", "rt");
