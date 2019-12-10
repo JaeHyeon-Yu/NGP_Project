@@ -113,11 +113,6 @@ void Tower::Update(Tower_Packet tPacket, int idx) {
 	{
 		stage[i].Update();
 	}
-
-	//if (ball->Collide(stage[current_floor].Get_y(), stage//[current_floor].Get_state_of_tile(current_degree + rotate_degree)) == true)
-	//{
-	//	stage[current_floor].Destroy();
-	//}
 }
 void Tower::StageUpdate(Destroy_Packet dPacket) {
 	stage[dPacket.stageIdx].Destroy();

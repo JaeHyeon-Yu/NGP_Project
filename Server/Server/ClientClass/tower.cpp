@@ -102,10 +102,8 @@ Tower_Packet Tower::MakePacket() {
 	tPacket.game_state = g_gameState;
 	return tPacket;
 }
-void Tower::Update(Tower_Packet tPacket) {
-	rotate_degree = tPacket.rotate_degree;
-	current_degree = tPacket.current_degree;
-	ball->Update(tPacket.ball);
+void Tower::Update(int moving) {
+	Rotate_by_mouse(moving);
 	Update();
 }
 void Tower::SetState(int s) {

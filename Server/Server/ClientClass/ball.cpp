@@ -36,6 +36,7 @@ Ball::Ball(int idx)
 
 void Ball::Update()
 {	
+	if (state != WIN && state != LOOSE) state = EMPTY;
 	if (state == WIN || state == LOOSE) g_gameState = END_STATE;
 	if (life <= 0) state = LOOSE;
 	if (state == WIN) {
@@ -93,6 +94,9 @@ bool Ball::Collide(int floor, int tile_state)
 	if (g_gameState == END_STATE) return false;
 	if (life <= 0) return false;
 	if (state != EMPTY) return false;
+	if (tempState != EMPTY)	state = tempState;
+	tempState = EMPTY;
+
 	if (life > 0)
 	{
 		if (speed < 0.25)
@@ -153,22 +157,11 @@ bool Ball::Collide(int floor, int tile_state)
 				
 				g_towerArr[index].SetCollideTile();
 			}
-			else if (y < floor + 0.2 && tile_state == BLINK_TILE)
-			{
-				if (immotal == false)
-				{
-					if (life == true)
-					{
-					}
-					speed = 0;
-					life -= 1;
-				}
-				else if (immotal == true)
-				{
-					speed = -0.1;
-					camera_follow = false;
-					Squeeze = 2;
-				}
+			else if (y < floor + 0.2 && tile_state == BLINK_TILE){
+				speed = -0.1;
+				life -= 1;
+				state = Collide_BLINK;
+				g_towerArr[index].SetCollideTile();
 			}
 			else if (y < floor + 0.2 && tile_state == END_TILE)
 			{
@@ -193,7 +186,6 @@ bool Ball::Collide(int floor, int tile_state)
 				if (other == -1) return false;
 
 				g_towerArr[other].SetState(LOOSE);
-				// Victory();
 			}
 			else if (y < floor + 0.2&&tile_state != EMPTY_TILE)
 			{

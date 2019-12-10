@@ -10,10 +10,6 @@ struct ThreadArg {
 	SOCKET sock;
 	int clientIdx;
 };
-struct StagingPacket {
-	Tower_Packet tPacket;
-	Mouse_Packet mPacket;
-};
 DWORD WINAPI RecvThread(LPVOID arg);
 DWORD WINAPI SendThread(LPVOID arg);
 
@@ -47,8 +43,8 @@ int g_users{ 0 };
 int g_gameState{ MAIN_STATE };
 Tower g_towerArr[2];
 SOCKET g_sockets[2]{ NULL, NULL };
-StagingPacket g_sPack[2]{ NULL, NULL };
 HANDLE g_threadHandle[MAX_USERS];
+int g_moving[MAX_USERS]{ NULL };
 //---------------------
 
 int main() {
@@ -84,6 +80,10 @@ int main() {
 	// listen
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
+
+	// Set socket option
+	BOOL option = TRUE;
+	setsockopt(listen_sock, IPPROTO_TCP, TCP_NODELAY, (char*)& option, sizeof(option));
 
 	SOCKET client_sock;
 	SOCKADDR_IN clientaddr;
@@ -149,39 +149,19 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 	getpeername(sock, (SOCKADDR*)& clientaddr, &addrlen);
 
 	// 초기 데이터 전송
-	//retval = send(sock, (char*)& g_towerArr, sizeof(g_towerArr), 0);
-	//if (retval == SOCKET_ERROR) err_display("send()");
 	retval = send(sock, (char*)& clientIdx, sizeof(int), 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
+	int option = EASY_1;
+	retval = send(sock, (char*)& option, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("send()");
 
 	while (true) {
-		// Recv & Casting Tower Packet
-		ZeroMemory(buf, BUFSIZE);
-		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
-		if (retval == SOCKET_ERROR) err_display("recv()");
-		retval = recv(sock, buf, recvBytes, 0);
+		retval = recv(sock, (char*)& g_moving[clientIdx], sizeof(int), 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
 			break;
 		}
-		buf[recvBytes] = '\0';
-		Tower_Packet* tPacket = (Tower_Packet*)buf;
 
-		// // Recv & Casting Mouse Packet
-		// ZeroMemory(buf, BUFSIZE);
-		// retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
-		// if (retval == SOCKET_ERROR) err_display("recv()");
-		// retval = recv(sock, buf, recvBytes, 0);
-		// if (retval == SOCKET_ERROR) {
-		// 	err_display("recv()");
-		// 	break;
-		// }
-		// buf[recvBytes] = '\0';
-		// Mouse_Packet* mPacket = (Mouse_Packet*)buf;
-
-		// SendThread로 넘기기 전 대기 영역에 패킷을 저장해준다. 
-		g_sPack[clientIdx].tPacket = *tPacket;
-	//	g_sPack[clientIdx].mPacket = *mPacket;
 		// Event 활성화
 		SetEvent(g_threadHandle[clientIdx]);
 	}
@@ -197,7 +177,7 @@ DWORD WINAPI SendThread(LPVOID arg) {
 
 		for (int i = 0; i < MAX_USERS; ++i)
 			// 패킷을 인자로 넣어서 Update
-			g_towerArr[i].Update(g_sPack[i].tPacket);
+			g_towerArr[i].Update(g_moving[i]);
 
 		Tower_Packet tPacket[MAX_USERS];
 		tPacket[0] = g_towerArr[0].MakePacket();

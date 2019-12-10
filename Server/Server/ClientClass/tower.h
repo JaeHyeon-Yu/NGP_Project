@@ -34,7 +34,7 @@ public:
 
 	// Server's Function
 	Tower_Packet MakePacket();
-	void Update(Tower_Packet tPacket);
+	void Update(int moving);
 	void SetState(int s);
 	int GetDegree();
 	void SetCollideTile();

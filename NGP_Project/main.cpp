@@ -50,6 +50,7 @@ void InitConnect(WSADATA wsa);
 // For Network
 Tower g_towers[MAX_USERS];
 int g_myIdx = NULL;
+int g_move = NULL;
 // Ball g_balls[MAX_USERS]
 
 //소켓 함수 오류 출력 후 종료
@@ -79,6 +80,23 @@ void err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
+int recvn(SOCKET s, char* buf, int len, int flags) {
+	int received;
+	char* ptr = buf;
+	int left = len;
+
+	while (left > 0) {
+		received = recv(s, ptr, left, flags);
+		if (received == SOCKET_ERROR)
+			return SOCKET_ERROR;
+		else if (received == 0) break;
+
+		left -= received;
+		ptr += received;
+	}
+
+	return (len - left);
+}
 
 void main(int argc, char *argv[])
 {
@@ -345,7 +363,8 @@ void Motion(int xp, int yp)
 	if (drag == true)
 	{
 		int moving = moved_mouse.x - first_click.x;
-		g_towers[g_myIdx].Rotate_by_mouse(-moving);
+		g_move = -moving;
+		// g_towers[g_myIdx].Rotate_by_mouse(-moving);
 	}
 
 }
@@ -566,6 +585,10 @@ void InitConnect(WSADATA wsa)
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == INVALID_SOCKET)err_quit("socket()");
 
+	// Set socket option
+	BOOL option = TRUE;
+	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)& option, sizeof(option));
+
 	//connect()
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
@@ -576,10 +599,13 @@ void InitConnect(WSADATA wsa)
 	if (retval == SOCKET_ERROR)err_quit("connect()");
 
 	// 초기 데이터를 클래스 단위로 받아온다.
-	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
+	int level = NULL;
+	retval = recvn(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
-	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(EASY_1);
-	// Game_state = EASY_1;
+	retval = recvn(sock, (char*)& level, sizeof(int), 0);
+	if (retval == SOCKET_ERROR) err_display("recv()");
+
+	for (int i = 0; i < 2; ++i) g_towers[i].Initialize(level);
 	Game_state = MAIN_STATE;
 }
 void NetworkTimer(int value) {
@@ -587,17 +613,13 @@ void NetworkTimer(int value) {
 	int sendBytes = sizeof(Tower_Packet);
 	char buf[BUFSIZE];
 
-
-	Tower_Packet packet = g_towers[g_myIdx].MakePacket();
-	retval = send(sock, (char*)& sendBytes, sizeof(int), 0);
-	if (retval == SOCKET_ERROR) err_display("send()");
-	retval = send(sock, (char*)& packet, sendBytes, 0);
+	retval = send(sock, (char*)& g_move, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("send()");
 
 	int recvBytes = NULL;
-	retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+	retval = recvn(sock, (char*)& recvBytes, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
-	retval = recv(sock, buf, recvBytes, 0);
+	retval = recvn(sock, buf, recvBytes, 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	buf[recvBytes] = '\0';
 	Tower_Packet* tPacket = (Tower_Packet*)buf;
@@ -607,9 +629,9 @@ void NetworkTimer(int value) {
 		if (tPacket[i].bPack.state != TILE_BREAK) continue;
 
 		recvBytes = 0;
-		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		retval = recvn(sock, (char*)& recvBytes, sizeof(int), 0);
 		if (retval == SOCKET_ERROR) err_display("recv()");
-		retval = recv(sock, buf, recvBytes, 0);
+		retval = recvn(sock, buf, recvBytes, 0);
 		if (retval == SOCKET_ERROR) err_display("recv()");
 		buf[recvBytes] = '\0';
 		Destroy_Packet* dPacket = (Destroy_Packet*)buf;
@@ -622,9 +644,9 @@ void NetworkTimer(int value) {
 		if (tPacket[i].bPack.state != Collide_KILL) continue;
 
 		recvBytes = 0;
-		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		retval = recvn(sock, (char*)& recvBytes, sizeof(int), 0);
 		if (retval == SOCKET_ERROR) err_display("recv()");
-		retval = recv(sock, buf, recvBytes, 0);
+		retval = recvn(sock, buf, recvBytes, 0);
 		if (retval == SOCKET_ERROR) err_display("recv()");
 		buf[recvBytes] = '\0';
 		Change_Packet* cPacket = (Change_Packet*)buf;

@@ -23,6 +23,8 @@ enum Ball_State {
 	Collide_NORMAL, Collide_ROTATE, BLIND,
 	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END
 };
+
+#pragma pack(push, 1)
 struct Ball_Packet {
 	// Ball Class
 	double y;
@@ -55,3 +57,4 @@ struct Change_Packet {
 	int stageIdx;
 	int tileIdx;
 };
+#pragma pack(pop)

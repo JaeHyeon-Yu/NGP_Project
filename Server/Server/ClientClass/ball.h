@@ -39,7 +39,7 @@ private:
 	// 추가 변수
 	int state;
 	int index;
-
+	int tempState;
 public:
 	Ball(int idx);
 	bool Collide(int floor, int tile_state);
@@ -58,7 +58,7 @@ public:
 	Ball_Packet MakePacket();
 	void Initialize(int idx);
 	void Update(Ball_Packet bPack);
-	void SetState(int s) { state = s; };
+	void SetState(int s) { tempState = s; };
 };
 
 #endif
