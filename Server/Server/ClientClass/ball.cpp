@@ -119,8 +119,10 @@ bool Ball::Collide(int floor, int tile_state)
 				int other = OtherTndex(index);
 				if (other == -1) return false;
 
-				g_towerArr[other].SetState(Collide_ROTATE);
+				g_towerArr[other].SetState(ROTATE);
 				g_towerArr[other].Rotate_half();
+				g_towerArr[index].SetCollideTile();
+
 			}
 
 			else if (y < floor + 0.2 && tile_state == BLIND_TILE)
@@ -128,11 +130,14 @@ bool Ball::Collide(int floor, int tile_state)
 				speed = -0.1;
 				camera_follow = false;
 				Squeeze = 2;
+				state = Collide_BLIND;
 
 				int other = OtherTndex(index);
 				if (other == -1) return false;
 
 				g_towerArr[other].SetState(BLIND);
+				g_towerArr[index].SetCollideTile();
+
 			}
 			else if (y < floor + 0.4 && tile_state == GRAVITY_FREE_TILE)
 			{
@@ -151,9 +156,9 @@ bool Ball::Collide(int floor, int tile_state)
 			}
 			else if (y < floor + 0.2 && tile_state == KILL_TILE)
 			{
-				state = Collide_KILL;
 				speed = -0.1;
 				life -= 1;
+				state = Collide_KILL;
 				
 				g_towerArr[index].SetCollideTile();
 			}
@@ -242,16 +247,7 @@ Ball_Packet Ball::MakePacket() {
 	return pPacket;
 }
 void Ball::Initialize(int idx) {
-	if (idx == 0) {
-		x = player1_x;
-		y = player1_y;
-		z = player1_z;
-	}
-	else if (idx == 1) {
-		x = player2_x;
-		y = player2_y;
-		z = player2_z;
-	}
+	
 }
 void Ball::Update(Ball_Packet bPack) {
 	if (bPack.state == WIN || bPack.state == LOOSE)

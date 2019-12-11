@@ -10,7 +10,7 @@
 #define MAIN_STATE 4
 #define DEFEAT_STATE 5
 #define WIN_STATE 6
-
+#define REPLAY_STATE 8
 GLvoid drawScene(GLvoid);
 GLvoid Reshape(int w, int h);
 void Timerfunction(int value);
@@ -22,6 +22,7 @@ void NetworkTimer(int value);
 
 GLubyte* LoadDIBitmap(const char* file_name, BITMAPINFO** info);
 void Init_Texture(GLubyte* pBytes, BITMAPINFO* info, GLuint* textures);
+void Init_EndTexture(GLubyte* pBytes, BITMAPINFO* info, GLuint* textures);
 void Draw_Background();
 void Draw_Level();
 void Sound_SetUp();

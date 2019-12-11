@@ -60,6 +60,7 @@ public:
 	void Update(Ball_Packet bPack, int idx);
 	void PlaySoundEffect();
 	int GetLife() { return life; }
+	int GetState() { return state; }
 };
 
 #endif

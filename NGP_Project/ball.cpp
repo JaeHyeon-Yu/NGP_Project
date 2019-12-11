@@ -194,7 +194,7 @@ void Ball::PlaySoundEffect() {
 		PlaySound("Sound/fail.wav", NULL, SND_ASYNC);
 	if (state == Collide_NORMAL)
 		PlaySound("Sound/bounce.wav", NULL, SND_ASYNC);
-	if (state == Collide_ROTATE)
+	if (state == ROTATE)
 		PlaySound("Sound/rotate.wav", NULL, SND_ASYNC);
 	if (state == BLIND)
 		PlaySound("Sound/spit.wav", NULL, SND_ASYNC);

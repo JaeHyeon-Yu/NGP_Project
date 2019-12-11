@@ -33,10 +33,12 @@ public:
 
 	void SetXpos(float x) { xpos = x; }
 	
-	Tower_Packet MakePacket();
+	Rotate_Packet MakePacket();
 	void Update(Tower_Packet tPacket, int idx);
 	void StageUpdate(Destroy_Packet dPacket);
 	int GetBallLife();
 	void SetTile(Change_Packet cPack);
+	int GetBallState();
+	
 };
 #endif // !__TOWER_H__

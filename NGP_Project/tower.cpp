@@ -95,13 +95,9 @@ void Tower::Power_overwhelming()
 	ball->Power_overwhelming();
 }
 
-Tower_Packet Tower::MakePacket() {
-	Tower_Packet tPacket;
-	tPacket.current_degree = current_degree;
-	tPacket.rotate_degree = rotate_degree;
-	tPacket.bPack = ball->MakePacket();
-	tPacket.game_state;
-	return tPacket;
+Rotate_Packet Tower::MakePacket() {
+	Rotate_Packet rPacket{ rotate_degree, current_degree };
+	return rPacket;
 }
 void Tower::Update(Tower_Packet tPacket, int idx) {
 	int current_floor = ball->Get_floor();
@@ -122,4 +118,7 @@ int Tower::GetBallLife() {
 }
 void Tower::SetTile(Change_Packet cPack) {
 	stage[cPack.stageIdx].Load_Tile_Data(NORMAL_TILE, cPack.tileIdx);
+}
+int Tower::GetBallState() {
+	return ball->GetState();
 }

@@ -15,12 +15,13 @@
 // ================================//
 
 enum Ball_State {
-	EMPTY, Collide_BLINK, Collide_KILL,
-	Collide_NORMAL, Collide_ROTATE, BLIND,
-	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END
+	EMPTY, Collide_NORMAL, Collide_KILL, Collide_BLINK, Collide_ROTATE, Collide_BLIND, 
+	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END, BLIND, ROTATE
 };
 
 #pragma pack(push, 1)
+
+// Server -> Client
 struct Ball_Packet {
 	// Ball Class
 	double y;
@@ -52,5 +53,11 @@ struct Destroy_Packet {
 struct Change_Packet {
 	int stageIdx;
 	int tileIdx;
+};
+
+// Client -> Server
+struct Rotate_Packet {
+	int rotate_degree;
+	int current_degree;
 };
 #pragma pack(pop)

@@ -34,10 +34,12 @@ public:
 
 	// Server's Function
 	Tower_Packet MakePacket();
-	void Update(int moving);
+	void Update(Rotate_Packet rPacket);
 	void SetState(int s);
 	int GetDegree();
 	void SetCollideTile();
 	int GetTileIdx(int);
+	int GetRotate() { return rotate_degree; }
+	int GetCurren() { return current_degree; }
 };
 #endif // !__TOWER_H__

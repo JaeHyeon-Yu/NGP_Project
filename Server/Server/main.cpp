@@ -14,6 +14,8 @@ DWORD WINAPI RecvThread(LPVOID arg);
 DWORD WINAPI SendThread(LPVOID arg);
 
 void Initialize(int idx);
+void CheckGameState();
+
 void err_quit(char* msg) {
 	// 소켓함수 오류 출력 후 종료
 	LPVOID lpMsgBuf;
@@ -44,6 +46,7 @@ int g_gameState{ MAIN_STATE };
 Tower g_towerArr[2];
 SOCKET g_sockets[2]{ NULL, NULL };
 HANDLE g_threadHandle[MAX_USERS];
+Rotate_Packet stagingPacket[MAX_USERS];
 int g_moving[MAX_USERS]{ NULL };
 //---------------------
 
@@ -92,7 +95,6 @@ int main() {
 	HANDLE sendThread;
 	g_threadHandle[0] = CreateEvent(NULL, TRUE, FALSE, NULL);
 	g_threadHandle[1] = CreateEvent(NULL, TRUE, FALSE, NULL);
-
 	sendThread = CreateThread(NULL, 0, SendThread, NULL, 0, NULL);
 	while (true) {
 		if (g_users >= MAX_USERS) Sleep(999);
@@ -156,11 +158,15 @@ DWORD WINAPI RecvThread(LPVOID arg) {
 	if (retval == SOCKET_ERROR) err_display("send()");
 
 	while (true) {
-		retval = recv(sock, (char*)& g_moving[clientIdx], sizeof(int), 0);
+		retval = recv(sock, (char*)& recvBytes, sizeof(int), 0);
+		retval = recv(sock, buf, recvBytes, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
 			break;
 		}
+		buf[recvBytes] = '\0';
+		Rotate_Packet* rPacket = (Rotate_Packet*)buf;
+		stagingPacket[clientIdx] = *rPacket;
 
 		// Event 활성화
 		SetEvent(g_threadHandle[clientIdx]);
@@ -177,12 +183,12 @@ DWORD WINAPI SendThread(LPVOID arg) {
 
 		for (int i = 0; i < MAX_USERS; ++i)
 			// 패킷을 인자로 넣어서 Update
-			g_towerArr[i].Update(g_moving[i]);
+			g_towerArr[i].Update(stagingPacket[i]);
 
 		Tower_Packet tPacket[MAX_USERS];
 		tPacket[0] = g_towerArr[0].MakePacket();
 		tPacket[1] = g_towerArr[1].MakePacket();
-	
+		
 		for (int i = 0; i < MAX_USERS; ++i) {
 			// send Tower Packet
 			sendLen = sizeof(tPacket);
@@ -212,13 +218,15 @@ DWORD WINAPI SendThread(LPVOID arg) {
 				}
 			}
 		}
-
 		for (int i = 0; i < MAX_USERS; ++i) {
 			// Tile Change --
-			if (tPacket[i].ball.state == Collide_KILL) {
+			if (Collide_KILL == tPacket[i].ball.state 
+				|| tPacket[i].ball.state == Collide_BLIND
+				|| tPacket[i].ball.state == Collide_BLINK
+				|| tPacket[i].ball.state == Collide_ROTATE) {
 				Change_Packet cPacket{ tPacket[i].ball.floor, g_towerArr[i].GetTileIdx(tPacket[i].ball.floor) };
 				sendLen = sizeof(Change_Packet);
-
+				cout << "Change" << endl;
 				for (int j = 0; j < MAX_USERS; ++j) {
 					retval = send(g_sockets[j], (char*)& sendLen, sizeof(int), 0);
 					if (retval == SOCKET_ERROR) err_display("send()");
@@ -230,7 +238,7 @@ DWORD WINAPI SendThread(LPVOID arg) {
 				}
 			}
 		}
-
+		CheckGameState();
 		// Event 비활성화
 		ResetEvent(g_threadHandle[0]);
 		ResetEvent(g_threadHandle[1]);
@@ -241,5 +249,20 @@ void Initialize(int idx) {
 	if (idx < 0 || idx >= MAX_USERS) return; 
 	int tower_level = EASY_1;
 
-	g_towerArr[idx].Initialize(tower_level, idx);
+	g_towerArr[idx].Initialize(EASY_1, idx);
+}
+void CheckGameState() {
+	static int timer{ 0 };
+	if(g_gameState == END_STATE)
+		timer++;
+
+	if (timer >= 90 && g_gameState == END_STATE) {
+		g_gameState = REPLAY_STATE;
+		timer = 0;
+		for (int i = 0; i < MAX_USERS; ++i)
+			Initialize(i);
+		return;
+	}
+	if (g_gameState == REPLAY_STATE)
+		g_gameState = MAIN_STATE;
 }

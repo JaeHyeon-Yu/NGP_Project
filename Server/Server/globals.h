@@ -12,19 +12,16 @@
 #define DEFEAT_STATE 5
 #define WIN_STATE 6
 #define END_STATE 7
+#define REPLAY_STATE 8
 // ================================//
 
-enum POS_INFO {
-	player1_x, player1_y, player1_z,
-	player2_x, player2_y, player2_z
-};
 enum Ball_State {
-	EMPTY, Collide_BLINK, Collide_KILL,
-	Collide_NORMAL, Collide_ROTATE, BLIND,
-	Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END
+	EMPTY, Collide_NORMAL, Collide_KILL, Collide_BLINK, Collide_ROTATE, Collide_BLIND, Collide_GRAVITY, WIN, LOOSE, TILE_BREAK, END, STANDBY_END, BLIND, ROTATE
 };
 
 #pragma pack(push, 1)
+
+// Server -> Client
 struct Ball_Packet {
 	// Ball Class
 	double y;
@@ -43,11 +40,6 @@ struct Tower_Packet {
 	int game_state;
 };
 
-struct Mouse_Packet {
-	bool state;
-	int x;
-};
-
 struct Destroy_Packet {
 	int towerIdx;
 	int stageIdx;
@@ -56,5 +48,11 @@ struct Destroy_Packet {
 struct Change_Packet {
 	int stageIdx;
 	int tileIdx;
+};
+
+// Client -> Server
+struct Rotate_Packet {
+	int rotate_degree;
+	int current_degree;
 };
 #pragma pack(pop)

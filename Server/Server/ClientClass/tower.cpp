@@ -44,7 +44,6 @@ void Tower::Update()
 		stage[current_floor].Distroy();
 	}
 	
-
 }
 
 void Tower::Rotate_plus()
@@ -102,8 +101,9 @@ Tower_Packet Tower::MakePacket() {
 	tPacket.game_state = g_gameState;
 	return tPacket;
 }
-void Tower::Update(int moving) {
-	Rotate_by_mouse(moving);
+void Tower::Update(Rotate_Packet rPacket) {
+	current_degree = rPacket.current_degree;
+	Rotate_by_mouse(rPacket.rotate_degree);
 	Update();
 }
 void Tower::SetState(int s) {
@@ -111,25 +111,26 @@ void Tower::SetState(int s) {
 }
 int Tower::GetDegree() {
 	int tower_degree = current_degree + rotate_degree;
-	
-	for (int i = 0; i < 10; ++i) {
-		if (tower_degree >= 0) break;
-		else tower_degree += 360;
-	}
+	tower_degree = ((tower_degree % 360) + 360) % 360;
 
-	for (int i = 0; i < 10; ++i) {
-		if (abs(tower_degree) < 360) break;
-		else tower_degree = tower_degree % 360;
-	}
-	std::cout << tower_degree << std::endl;
+	//for (int i = 0; i < 10; ++i) {
+	//	if (tower_degree >= 0) break;
+	//	else tower_degree += 360;
+	//}
+	//
+	//for (int i = 0; i < 10; ++i) {
+	//	if (abs(tower_degree) < 360) break;
+	//	else tower_degree = tower_degree % 360;
+	//}
+	//std::cout << tower_degree << std::endl;
 	return tower_degree;
 }
 void Tower::SetCollideTile() {
 	int floor = ball->Get_floor();
-	int collideTileIdx = stage[floor].GetTileIdx(GetDegree());
+	int collideTileIdx = stage[floor].GetTileIdx(rotate_degree+current_degree);
 
 	stage[floor].Load_Tile_Data(NORMAL_TILE, collideTileIdx);
 }
 int Tower::GetTileIdx(int sIdx) {
-	return stage[sIdx].GetTileIdx(GetDegree());
+	return stage[sIdx].GetTileIdx(rotate_degree + current_degree);
 }

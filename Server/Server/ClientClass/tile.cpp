@@ -29,9 +29,6 @@ void Tile::Initialize(int degree)
 	this->degree = degree;
 	half_height = 0.1;
 
-	// up_side = gluNewQuadric();
-	// down_side = gluNewQuadric();
-
 	Distroy_timer = 0;
 	distroy_degree = 0;
 }

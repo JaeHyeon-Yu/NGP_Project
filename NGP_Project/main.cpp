@@ -26,7 +26,7 @@ using namespace std;
 // -1~0 1P, 0~1 2
 #define DISTANCE_OF_FLOOR 2
 
-int level = 1;
+int level = EASY_1;
 int Game_state = TITLE_STATE;	//0 = 타이틀 1 = 고르기 2 = 줌인 3 = 게임 4 = 패배 5 = 승리
 Tower tower;
 mouse_ first_click;
@@ -43,6 +43,12 @@ GLubyte *pBytes;
 BITMAPINFO *info;
 GLuint textures[2];
 
+// Init Texture for End State (Win, Loose Scene)
+GLubyte* pBytes_End;
+BITMAPINFO* info_End;
+GLuint textures_End[2];
+
+
 bool bmp_load = false;
 
 void InitConnect(WSADATA wsa);
@@ -50,7 +56,7 @@ void InitConnect(WSADATA wsa);
 // For Network
 Tower g_towers[MAX_USERS];
 int g_myIdx = NULL;
-int g_move = NULL;
+int g_move = 0;
 // Ball g_balls[MAX_USERS]
 
 //소켓 함수 오류 출력 후 종료
@@ -101,11 +107,6 @@ int recvn(SOCKET s, char* buf, int len, int flags) {
 void main(int argc, char *argv[])
 {
 	InitConnect(wsa);
-	//초기화 함수들
-	// tower.Initialize(EASY_1);
-	// Test Code
-	//for (int i = 0; i < MAX_USERS; ++i)
-	//	g_towers[i].Initialize(HARD_2);
 	Sound_SetUp();
 	// Play_Sound();
 	srand(time(NULL));
@@ -135,8 +136,11 @@ GLvoid drawScene(GLvoid)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // 설정된 색으로 전체를 칠하기, 깊이버퍼 클리어
 
-	if(!bmp_load)	
+	if (!bmp_load) {
 		Init_Texture(pBytes, info, textures);
+		Init_EndTexture(pBytes_End, info_End, textures_End);
+
+	}
 	bmp_load = true;
 
 	glEnable(GL_COLOR_MATERIAL);
@@ -199,9 +203,13 @@ GLvoid drawScene(GLvoid)
 		{
 			Draw_defeat_state();
 		}
-		else if (Game_state == WIN_STATE)
+		else if (Game_state == END_STATE)
 		{
-			Draw_win_state();
+			if (g_towers[g_myIdx].GetBallState() == WIN)
+				Draw_win_state();
+			else if (g_towers[g_myIdx].GetBallState() == LOOSE)
+				Draw_defeat_state();
+
 		}
 		else if (Game_state == SELECT_STATE)
 		{
@@ -260,6 +268,10 @@ void Timerfunction(int value)
 		// g_towers[0].Update();
 		// g_towers[1].Update();
 
+	}
+	if (Game_state == REPLAY_STATE) {
+		for (int i = 0; i < 2; ++i) 
+			g_towers[i].Initialize(level);
 	}
 	NetworkTimer(0);
 	glutPostRedisplay();	// 화면 재출력
@@ -363,8 +375,7 @@ void Motion(int xp, int yp)
 	if (drag == true)
 	{
 		int moving = moved_mouse.x - first_click.x;
-		g_move = -moving;
-		// g_towers[g_myIdx].Rotate_by_mouse(-moving);
+		g_towers[g_myIdx].Rotate_by_mouse(-moving);
 	}
 
 }
@@ -493,55 +504,54 @@ void Draw_Title()
 
 void Draw_defeat_state()
 {
-	char str[] ="Press 'r' To Restart";
-	//strcpy_s(str, "");
-	
+	glBindTexture(GL_TEXTURE_2D, textures_End[1]);
+	glTexGeni(GL_S, GL_TEXTURE_ENV_COLOR, GL_MODULATE);
 
-	glEnable(GL_COLOR_MATERIAL);
-	glColor3f(1, 0, 0);
-	glRasterPos2f(-0.5, 1);
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	glScaled(2, 2, 2);
+	glBegin(GL_POLYGON);
+	glColor3f(1, 1, 1);
+	glTexCoord2i(0, 1);
+	glVertex3f(-1, 1, 0);
 
-	int len = (int)strlen(str);
-	for (int i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+	glTexCoord2i(1, 1);
+	glVertex3f(1, 1, 0);
 
-	char str2[] = "Hold 'x' to Pay Respects";
-	//strcpy_s(str, "");
+	glTexCoord2i(1, 0);
+	glVertex3f(1, -1, 0);
 
+	glTexCoord2i(0, 0);
+	glVertex3f(-1, -1, 0);
 
-	glEnable(GL_COLOR_MATERIAL);
-	glColor3f(1, 0, 0);
-	glRasterPos2f(-0.5, 1.2);
-
-	int len2 = (int)strlen(str2);
-	for (int i = 0; i < len2; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str2[i]);
+	glEnd();
+	glPopMatrix();
 }
 
 void Draw_win_state()
 {
-	char str[] = "Press 'r' To Restart";
-	//strcpy_s(str, "");
+	glBindTexture(GL_TEXTURE_2D, textures_End[0]);
+	glTexGeni(GL_S, GL_TEXTURE_ENV_COLOR, GL_MODULATE);
 
-	glEnable(GL_COLOR_MATERIAL);
-	glColor3f(1, 0, 0);
-	glRasterPos2f(-0.5, 1.2);
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	glScaled(2, 2, 2);
+	glBegin(GL_POLYGON);
+	glColor3f(1, 1, 1);
+	glTexCoord2i(0, 1);
+	glVertex3f(-1, 1, 0);
 
-	int len = (int)strlen(str);
-	for (int i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str[i]);
+	glTexCoord2i(1, 1);
+	glVertex3f(1, 1, 0);
 
+	glTexCoord2i(1, 0);
+	glVertex3f(1, -1, 0);
 
-	char str2[] = "Press 'x' To Title";
-	//strcpy_s(str, "");
+	glTexCoord2i(0, 0);
+	glVertex3f(-1, -1, 0);
 
-	glEnable(GL_COLOR_MATERIAL);
-	glColor3f(1, 0, 0);
-	glRasterPos2f(-0.5, 1.4);
-
-	int len2 = (int)strlen(str2);
-	for (int i = 0; i < len2; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, str2[i]);
+	glEnd();
+	glPopMatrix();
 
 }
 
@@ -600,7 +610,7 @@ void InitConnect(WSADATA wsa)
 
 	// 초기 데이터를 클래스 단위로 받아온다.
 	int level = NULL;
-	retval = recvn(sock, (char*)& g_myIdx, sizeof(int), 0);
+	retval = recv(sock, (char*)& g_myIdx, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	retval = recvn(sock, (char*)& level, sizeof(int), 0);
 	if (retval == SOCKET_ERROR) err_display("recv()");
@@ -613,7 +623,10 @@ void NetworkTimer(int value) {
 	int sendBytes = sizeof(Tower_Packet);
 	char buf[BUFSIZE];
 
-	retval = send(sock, (char*)& g_move, sizeof(int), 0);
+	Rotate_Packet rPacket = g_towers[g_myIdx].MakePacket();
+	retval = send(sock, (char*)&sendBytes, sizeof(int), 0);
+	if (retval == SOCKET_ERROR) err_display("send()");
+	retval = send(sock, (char*)& rPacket, sendBytes, 0);
 	if (retval == SOCKET_ERROR) err_display("send()");
 
 	int recvBytes = NULL;
@@ -623,7 +636,7 @@ void NetworkTimer(int value) {
 	if (retval == SOCKET_ERROR) err_display("recv()");
 	buf[recvBytes] = '\0';
 	Tower_Packet* tPacket = (Tower_Packet*)buf;
-
+	cout << "f";
 	for (int i = 0; i < MAX_USERS; ++i) {
 		// Recv Packet for Tile Destroy
 		if (tPacket[i].bPack.state != TILE_BREAK) continue;
@@ -641,7 +654,10 @@ void NetworkTimer(int value) {
 
 	for (int i = 0; i < MAX_USERS; ++i) {
 		// Recv Packet for Tile Change
-		if (tPacket[i].bPack.state != Collide_KILL) continue;
+		if (tPacket[i].bPack.state != Collide_KILL &&
+			tPacket[i].bPack.state != Collide_BLINK &&
+			tPacket[i].bPack.state != Collide_ROTATE &&
+			tPacket[i].bPack.state != Collide_BLIND) continue;
 
 		recvBytes = 0;
 		retval = recvn(sock, (char*)& recvBytes, sizeof(int), 0);
